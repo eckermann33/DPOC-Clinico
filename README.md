@@ -41,6 +41,30 @@ do próprio navegador (chave `dpoc_clinico_v1`) — nada é enviado a servidores
 inicial permite reabrir o paciente, revisar a avaliação basal, registrar um novo retorno
 ou apagar os dados.
 
+## Estilo
+
+Direção visual **editorial clínica**: papel off-white quente, títulos em serifada,
+interface em Inter, fios finos de 1px no lugar de sombras e cantos quase retos
+(2–4 px). Azul-petróleo é a cor institucional; âmbar é o único acento e marca
+sempre "onde você está / o que você escolheu" (etapa ativa, barra de progresso,
+opção selecionada, checkbox marcado).
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--paper` | `#faf8f5` | fundo da página |
+| `--surface` | `#ffffff` | cards e painéis |
+| `--ink` | `#1a1a1a` | texto principal |
+| `--rule` / `--rule-strong` | `#e4ded4` / `#cdc5b8` | fios e bordas |
+| `--petrol-900` | `#12303f` | botão primário, veredito, marca |
+| `--amber` | `#b45309` | acento de estado e seleção |
+| `--serif` | Source Serif 4 | títulos, números, veredito |
+| `--font` | Inter | corpo, rótulos e controles |
+
+As fontes vêm do Google Fonts; sem internet o *fallback* cai em Georgia + system
+sans e o layout continua idêntico. Todo o estilo está no bloco `<style>` do
+`index.html`, com as cores em variáveis CSS no `:root` — trocar a paleta inteira
+é editar esse bloco.
+
 ## Aviso
 
 Ferramenta educacional de apoio à decisão — não substitui o julgamento clínico.
