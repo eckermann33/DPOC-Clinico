@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DPOC Clínico — Apoio à decisão (GOLD)</title>
+<meta name="description" content="Ferramenta de apoio à decisão para avaliação, classificação e manejo farmacológico da DPOC segundo a estratégia GOLD.">
+<style>
+/* ============================================================
+   DPOC Clínico — folha de estilo
+   Paleta sóbria: azul-petróleo (primária), cinza neutro, teal (ação)
+   ============================================================ */
+:root{
+  --petrol-900:#0f2733;
+  --petrol-800:#143446;
+  --petrol-700:#1b4257;
+  --petrol-600:#255569;
+  --accent:#0d7490;
+  --accent-dark:#0a5c72;
+  --accent-soft:#e6f2f6;
+  --danger:#a32b23;
+  --danger-soft:#fbecea;
+  --warn:#8a5a00;
+  --warn-soft:#fdf3e0;
+  --ok:#1d6b4f;
+  --ok-soft:#e8f4ef;
+
+  --ink:#14202a;
+  --ink-2:#3c4a57;
+  --ink-3:#65727f;
+  --ink-4:#8a95a1;
+
+  --bg:#f2f4f6;
+  --surface:#ffffff;
+  --surface-2:#f7f9fa;
+  --line:#dde3e8;
+  --line-strong:#c6d0d8;
+
+  --r-sm:5px;
+  --r:8px;
+  --r-lg:11px;
+  --shadow-1:0 1px 2px rgba(16,28,38,.06), 0 1px 1px rgba(16,28,38,.04);
+  --shadow-2:0 4px 14px rgba(16,28,38,.08), 0 1px 3px rgba(16,28,38,.05);
+  --font:"Inter","Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  display:flex; flex-direction:column; min-height:100vh;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.011em}
+p{margin:0}
+a{color:var(--accent-dark)}
+
+/* ---------- cabeçalho ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:var(--petrol-900); color:#e8eef2;
+  border-bottom:1px solid #0a1c26;
+}
+.topbar-in{
+  max-width:1120px; margin:0 auto; padding:0 20px;
+  height:56px; display:flex; align-items:center; gap:14px;
+}
+.brand{display:flex; align-items:baseline; gap:9px; min-width:0; flex:0 1 auto; overflow:hidden}
+.brand-mark{
+  font:600 11px/1 var(--font); letter-spacing:.14em; text-transform:uppercase;
+  color:#0f2733; background:#8fc4d3; padding:5px 6px; border-radius:3px; align-self:center;
+}
+.brand-name{font-size:15.5px; font-weight:600; color:#fff; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand-sub{font-size:12px; color:#8fa3b0; white-space:nowrap}
+@media (max-width:780px){.brand-sub{display:none}}
+.topbar-spacer{flex:1}
+.patient-chip{
+  display:flex; align-items:center; gap:8px; max-width:280px;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  padding:5px 10px; border-radius:var(--r-sm); font-size:12.5px; color:#cfdde5;
+}
+.patient-chip strong{color:#fff; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.patient-chip .sep{color:#5c7180}
+@media (max-width:640px){.patient-chip{display:none}}
+.tb-btn{
+  background:transparent; border:1px solid rgba(255,255,255,.22); color:#dce6ec;
+  padding:6px 11px; border-radius:var(--r-sm); font-size:13px; cursor:pointer;
+  white-space:nowrap; transition:background .12s,border-color .12s,color .12s;
+}
+.tb-btn:hover{background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.4); color:#fff}
+.tb-btn:focus-visible{outline:2px solid #8fc4d3; outline-offset:2px}
+.tb-btn.alert{border-color:#b8544c; color:#f3c9c5}
+.tb-btn.alert:hover{background:#7e2620; border-color:#c96a62; color:#fff}
+.tb-btn.ghost{border-color:transparent; color:#9fb2bd}
+.tb-btn.ghost:hover{color:#fff; background:rgba(255,255,255,.07)}
+.tb-btn .curto{display:none}
+@media (max-width:600px){
+  .topbar-in{padding:0 12px; gap:8px; height:52px}
+  .brand-mark{padding:4px 5px; font-size:10px}
+  .brand-name{font-size:14px}
+  .tb-btn{padding:6px 9px; font-size:12.5px}
+  .tb-btn .longo{display:none}
+  .tb-btn .curto{display:inline}
+  .rail-wrap{top:52px}
+  .rail{padding:0 12px}
+  main{padding:18px 12px 32px}
+  .footer-in{padding:16px 12px 26px}
+}
+
+/* ---------- trilha de etapas ---------- */
+.rail-wrap{background:var(--surface); border-bottom:1px solid var(--line); position:sticky; top:56px; z-index:30}
+.rail{max-width:1120px; margin:0 auto; padding:0 20px; display:flex; gap:0; overflow-x:auto; scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.rail-step{
+  flex:0 0 auto; display:flex; align-items:center; gap:7px;
+  padding:9px 22px 9px 0; background:none; border:0; cursor:default; text-align:left; color:var(--ink-4);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.rail-step:last-child{padding-right:0}
+.rail-step .n{
+  flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center;
+  font-size:11px; font-weight:600; border:1px solid var(--line-strong); color:var(--ink-4); background:var(--surface);
+}
+.rail-step .lb{font-size:11.5px; line-height:1.25; letter-spacing:-.005em; white-space:nowrap}
+@media (max-width:1080px){.rail-step{padding-right:16px} .rail-step .lb{font-size:11px}}
+.rail-step.done{color:var(--ink-2)}
+.rail-step.done .n{background:var(--petrol-700); border-color:var(--petrol-700); color:#fff}
+.rail-step.done{cursor:pointer}
+.rail-step.done:hover .lb{color:var(--accent-dark)}
+.rail-step.active{color:var(--petrol-900); border-bottom-color:var(--accent)}
+.rail-step.active .n{background:var(--accent); border-color:var(--accent); color:#fff}
+.rail-step.active .lb{font-weight:600}
+.progress{height:2px; background:var(--line)}
+.progress > i{display:block; height:100%; background:var(--accent); transition:width .25s ease}
+
+/* ---------- área principal ---------- */
+main{flex:1; width:100%; max-width:1120px; margin:0 auto; padding:26px 20px 44px}
+.stage{max-width:720px; margin:0 auto}
+.stage.wide{max-width:1120px}
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-1); padding:26px 28px;
+}
+@media (max-width:560px){.card{padding:20px 17px}}
+.eyebrow{
+  font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--accent-dark); margin-bottom:9px;
+}
+.q-title{font-size:21px; line-height:1.3; color:var(--petrol-900)}
+@media (max-width:560px){.q-title{font-size:19px}}
+.q-help{margin-top:8px; color:var(--ink-3); font-size:13.5px; max-width:60ch}
+.q-body{margin-top:20px}
+
+/* ---------- campos ---------- */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field > label{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+.field .sub{font-size:12.5px; color:var(--ink-3); margin-top:5px}
+input[type=text],input[type=number]{
+  width:100%; padding:10px 12px; background:var(--surface);
+  border:1px solid var(--line-strong); border-radius:var(--r); font-size:15px;
+  transition:border-color .12s, box-shadow .12s;
+}
+input[type=text]:hover,input[type=number]:hover{border-color:#a9b6c0}
+input[type=text]:focus,input[type=number]:focus{
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,116,144,.15);
+}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.inline-2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media (max-width:520px){.inline-2{grid-template-columns:1fr}}
+.suffix{position:relative}
+.suffix input{padding-right:78px}
+.suffix span{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  font-size:12.5px; color:var(--ink-3); pointer-events:none;
+}
+
+/* ---------- opções ---------- */
+.opts{display:flex; flex-direction:column; gap:8px}
+.opt{
+  display:flex; gap:12px; align-items:flex-start; width:100%; text-align:left;
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r);
+  padding:12px 14px; cursor:pointer; transition:border-color .12s, background .12s, box-shadow .12s;
+}
+.opt:hover{border-color:var(--accent); background:var(--surface-2)}
+.opt:focus-visible{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,116,144,.15)}
+.opt .tick{
+  flex:none; width:17px; height:17px; margin-top:1px; border-radius:50%;
+  border:1.5px solid var(--line-strong); background:var(--surface); position:relative;
+}
+.opt.sel{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 3px 0 0 var(--accent)}
+.opt.sel .tick{border-color:var(--accent)}
+.opt.sel .tick::after{content:""; position:absolute; inset:3px; border-radius:50%; background:var(--accent)}
+.opt .txt{display:block; min-width:0}
+.opt .lab{display:block; font-size:14.5px; font-weight:600; color:var(--petrol-900); line-height:1.35}
+.opt .desc{display:block; font-size:13px; color:var(--ink-3); margin-top:3px; line-height:1.45}
+.opt.check .tick{border-radius:4px}
+.opt.check.sel .tick::after{
+  content:""; position:absolute; inset:auto; left:4.5px; top:1px; width:5px; height:10px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(42deg); background:none; border-radius:0;
+}
+.opt.check.sel .tick{background:var(--accent)}
+
+/* escala 0-5 */
+.scale-anchors{display:flex; justify-content:space-between; gap:16px; font-size:12.5px; color:var(--ink-3); margin-bottom:10px}
+.scale-anchors span{max-width:46%}
+.scale-anchors span:last-child{text-align:right}
+.scale{display:grid; grid-template-columns:repeat(6,1fr); gap:7px}
+.scale button{
+  padding:14px 0; border:1px solid var(--line-strong); background:var(--surface); border-radius:var(--r);
+  font-size:16px; font-weight:600; color:var(--ink-2); cursor:pointer;
+  transition:border-color .12s, background .12s, color .12s;
+}
+.scale button:hover{border-color:var(--accent); color:var(--accent-dark)}
+.scale button.sel{background:var(--accent); border-color:var(--accent); color:#fff}
+.scale button:focus-visible{outline:none; box-shadow:0 0 0 3px rgba(13,116,144,.18)}
+
+/* ---------- callouts ---------- */
+.note{
+  border:1px solid var(--line); background:var(--surface-2); border-left:3px solid var(--petrol-600);
+  border-radius:var(--r-sm); padding:11px 13px; font-size:13px; color:var(--ink-2); line-height:1.5;
+}
+.note.accent{border-left-color:var(--accent); background:var(--accent-soft); border-color:#cfe4ea}
+.note.warn{border-left-color:var(--warn); background:var(--warn-soft); border-color:#f0e0c0}
+.note.danger{border-left-color:var(--danger); background:var(--danger-soft); border-color:#f0d3d0}
+.note.ok{border-left-color:var(--ok); background:var(--ok-soft); border-color:#cfe6dc}
+.note b{color:var(--ink)}
+.note + .note{margin-top:9px}
+.calc{
+  margin-top:14px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  border:1px dashed var(--line-strong); border-radius:var(--r); padding:12px 14px; background:var(--surface-2);
+}
+.calc .k{font-size:12.5px; color:var(--ink-3)}
+.calc .v{font-family:var(--mono); font-size:19px; font-weight:600; color:var(--petrol-900)}
+.calc .u{font-size:12.5px; color:var(--ink-3)}
+
+/* ---------- rodapé de navegação ---------- */
+.navbar{display:flex; align-items:center; gap:12px; margin-top:22px}
+.navbar .right{margin-left:auto; display:flex; gap:10px; align-items:center}
+.btn{
+  border:1px solid transparent; border-radius:var(--r); padding:10px 18px;
+  font-size:14.5px; font-weight:600; cursor:pointer; transition:background .12s,border-color .12s,color .12s,box-shadow .12s;
+}
+.btn:focus-visible{outline:none; box-shadow:0 0 0 3px rgba(13,116,144,.25)}
+.btn-primary{background:var(--accent); color:#fff}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-primary:disabled{background:#b9c6cd; cursor:not-allowed}
+.btn-secondary{background:var(--surface); border-color:var(--line-strong); color:var(--ink-2)}
+.btn-secondary:hover{border-color:var(--ink-4); color:var(--ink)}
+.btn-quiet{background:none; color:var(--ink-3); padding:10px 6px}
+.btn-quiet:hover{color:var(--accent-dark); text-decoration:underline}
+.btn-danger{background:var(--danger); color:#fff}
+.btn-danger:hover{background:#8b231c}
+.err{color:var(--danger); font-size:13px; margin-top:12px; display:none}
+.err.on{display:block}
+
+/* ---------- laudo / resultado ---------- */
+.result-grid{display:grid; grid-template-columns:minmax(280px,.85fr) 1.15fr; gap:18px; align-items:start}
+@media (max-width:900px){.result-grid{grid-template-columns:1fr}}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow-1); overflow:hidden}
+.panel-h{
+  padding:12px 18px; border-bottom:1px solid var(--line); background:var(--surface-2);
+  font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2);
+  display:flex; align-items:center; gap:10px;
+}
+.panel-b{padding:18px}
+.panel-b.tight{padding:0}
+dl.data{margin:0; display:grid; grid-template-columns:auto 1fr}
+dl.data dt{
+  padding:9px 18px 9px 18px; font-size:12.5px; color:var(--ink-3); border-bottom:1px solid var(--line);
+  white-space:nowrap; background:var(--surface);
+}
+dl.data dd{
+  margin:0; padding:9px 18px; font-size:14px; color:var(--ink); border-bottom:1px solid var(--line);
+  text-align:right; font-variant-numeric:tabular-nums; font-weight:500;
+}
+dl.data dt:last-of-type,dl.data dd:last-of-type{border-bottom:0}
+.verdict{padding:18px}
+.verdict .big{font-size:26px; font-weight:700; letter-spacing:-.02em; color:var(--petrol-900); line-height:1.15}
+@media (max-width:560px){.verdict .big{font-size:22px}}
+.verdict .sub{margin-top:7px; color:var(--ink-2); font-size:14.5px}
+.tags{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
+.tag{
+  font-size:11.5px; font-weight:600; letter-spacing:.02em; padding:4px 9px; border-radius:20px;
+  border:1px solid var(--line-strong); color:var(--ink-2); background:var(--surface-2); white-space:nowrap;
+}
+.tag.accent{background:var(--accent-soft); border-color:#bcdae2; color:var(--accent-dark)}
+.tag.danger{background:var(--danger-soft); border-color:#eec8c4; color:var(--danger)}
+.tag.warn{background:var(--warn-soft); border-color:#eddcb9; color:var(--warn)}
+.tag.ok{background:var(--ok-soft); border-color:#c9e2d6; color:var(--ok)}
+
+ul.rx{margin:0; padding:0; list-style:none}
+ul.rx li{
+  display:flex; gap:11px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14px; line-height:1.5; color:var(--ink-2);
+}
+ul.rx li:last-child{border-bottom:0}
+ul.rx li:first-child{padding-top:0}
+ul.rx .bullet{
+  flex:none; margin-top:5px; width:6px; height:6px; border-radius:50%; background:var(--accent);
+}
+ul.rx .bullet.muted{background:var(--line-strong)}
+ul.rx b{color:var(--petrol-900); font-weight:650}
+.sect-label{
+  font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3);
+  margin:20px 0 9px;
+}
+.sect-label:first-child{margin-top:0}
+
+table.cmp{width:100%; border-collapse:collapse; font-size:14px}
+table.cmp th{
+  text-align:left; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);
+  font-weight:700; padding:9px 14px; border-bottom:1px solid var(--line-strong); background:var(--surface-2);
+}
+table.cmp th.num,table.cmp td.num{text-align:right; font-variant-numeric:tabular-nums}
+table.cmp td{padding:10px 14px; border-bottom:1px solid var(--line); color:var(--ink-2)}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp td.k{color:var(--ink); font-weight:500}
+.delta{font-family:var(--mono); font-size:13px; font-weight:600}
+.delta.up{color:var(--danger)}
+.delta.down{color:var(--ok)}
+.delta.flat{color:var(--ink-3)}
+
+.dim{display:flex; gap:12px; align-items:flex-start; padding:14px; border:1px solid var(--line); border-radius:var(--r); background:var(--surface)}
+.dim + .dim{margin-top:10px}
+.dim.bad{border-color:#eec8c4; background:var(--danger-soft)}
+.dim.good{border-color:#c9e2d6; background:var(--ok-soft)}
+.dim .st{
+  flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center;
+  font-size:12px; font-weight:700; color:#fff; background:var(--ok);
+}
+.dim.bad .st{background:var(--danger)}
+.dim h4{font-size:14.5px; color:var(--petrol-900)}
+.dim p{font-size:13px; color:var(--ink-2); margin-top:3px}
+
+.checklist{display:flex; flex-direction:column; gap:2px}
+.chk{display:flex; gap:11px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid var(--line); cursor:pointer; background:none; border-top:0;border-left:0;border-right:0; width:100%; text-align:left}
+.chk:last-child{border-bottom:0}
+.chk .box{
+  flex:none; width:17px; height:17px; margin-top:2px; border:1.5px solid var(--line-strong);
+  border-radius:4px; background:var(--surface); position:relative;
+}
+.chk.on .box{background:var(--accent); border-color:var(--accent)}
+.chk.on .box::after{content:""; position:absolute; left:4.5px; top:1px; width:5px; height:10px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(42deg)}
+.chk .t{font-size:14px; color:var(--ink-2)}
+.chk .t small{display:block; color:var(--ink-3); font-size:12.5px; margin-top:2px}
+.chk:hover .t{color:var(--ink)}
+
+.home-list{display:grid; gap:10px; margin-top:18px}
+.home-card{
+  display:flex; gap:14px; align-items:center; width:100%; text-align:left; cursor:pointer;
+  border:1px solid var(--line-strong); background:var(--surface); border-radius:var(--r); padding:15px 16px;
+  transition:border-color .12s, box-shadow .12s, background .12s;
+}
+.home-card:hover{border-color:var(--accent); box-shadow:var(--shadow-1)}
+.home-card .ic{
+  flex:none; width:34px; height:34px; border-radius:var(--r-sm); background:var(--accent-soft); color:var(--accent-dark);
+  display:grid; place-items:center; font-size:13px; font-weight:700; letter-spacing:.02em;
+}
+.home-card.alert .ic{background:var(--danger-soft); color:var(--danger)}
+.home-card h3{font-size:15px; color:var(--petrol-900)}
+.home-card p{font-size:13px; color:var(--ink-3); margin-top:2px}
+.home-card .arrow{margin-left:auto; color:var(--ink-4); font-size:18px; line-height:1}
+
+.timeline{margin:0; padding:0; list-style:none; font-size:13.5px}
+.timeline li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); color:var(--ink-2)}
+.timeline li:last-child{border-bottom:0}
+.timeline .dt{flex:none; width:88px; color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12.5px}
+.timeline b{color:var(--petrol-900)}
+
+/* ---------- rodapé ---------- */
+footer{background:var(--surface); border-top:1px solid var(--line); margin-top:auto}
+.footer-in{max-width:1120px; margin:0 auto; padding:20px 20px 30px}
+.disclaimer{
+  border:1px solid var(--line-strong); border-left:3px solid var(--petrol-700); background:var(--surface-2);
+  border-radius:var(--r-sm); padding:11px 14px; font-size:13px; color:var(--ink-2); font-weight:500;
+}
+.refs-toggle{
+  margin-top:14px; background:none; border:0; padding:0; cursor:pointer;
+  font-size:12.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3);
+  display:flex; align-items:center; gap:7px;
+}
+.refs-toggle:hover{color:var(--accent-dark)}
+.refs-toggle .car{font-size:10px; transition:transform .15s}
+.refs-toggle[aria-expanded="true"] .car{transform:rotate(90deg)}
+.refs{margin-top:12px; display:none; border-top:1px solid var(--line); padding-top:14px}
+.refs.on{display:block}
+.refs p{
+  font-size:12.5px; line-height:1.6; color:var(--ink-2); margin-bottom:11px;
+  padding-left:1.6em; text-indent:-1.6em; max-width:104ch;
+}
+.refs p:last-child{margin-bottom:0}
+.refs a{color:var(--accent-dark); text-decoration:none; word-break:break-word}
+.refs a:hover{text-decoration:underline}
+.colofon{margin-top:16px; font-size:12px; color:var(--ink-4)}
+
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+@media print{
+  .topbar,.rail-wrap,.navbar,.refs-toggle,.no-print{display:none !important}
+  body{background:#fff}
+  main{padding:0; max-width:none}
+  .panel,.card{box-shadow:none; border-color:#c9d2d8; break-inside:avoid}
+  .stage.wide{max-width:none}
+  footer{border-top:1px solid #c9d2d8}
+  .refs{display:block !important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-mark">DPOC</span>
+      <span class="brand-name">DPOC Clínico</span>
+      <span class="brand-sub">Apoio à decisão · Estratégia GOLD</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div id="chip"></div>
+    <button class="tb-btn alert" id="btnExac" type="button"><span class="longo">Exacerbação aguda</span><span class="curto">Exacerbação</span></button>
+    <button class="tb-btn ghost" id="btnHome" type="button">Início</button>
+  </div>
+</header>
+
+<div class="rail-wrap">
+  <nav class="rail" id="rail" aria-label="Etapas"></nav>
+  <div class="progress"><i id="bar" style="width:0%"></i></div>
+</div>
+
+<main><div class="stage" id="stage"></div></main>
+
+<footer>
+  <div class="footer-in">
+    <div class="disclaimer">
+      Ferramenta educacional de apoio à decisão — não substitui o julgamento clínico. Baseado na estratégia GOLD.
+    </div>
+    <button class="refs-toggle" id="refsBtn" type="button" aria-expanded="false" aria-controls="refs">
+      <span class="car">▶</span> Referências
+    </button>
+    <div class="refs" id="refs">
+      <p>GLOBAL INITIATIVE FOR CHRONIC OBSTRUCTIVE LUNG DISEASE (GOLD). <b>Global strategy for the diagnosis, management, and prevention of chronic obstructive pulmonary disease: 2026 report</b>. 2026. Disponível em: <a href="https://www.goldcopd.org" target="_blank" rel="noopener">https://www.goldcopd.org</a>.</p>
+      <p>GLOBAL INITIATIVE FOR CHRONIC OBSTRUCTIVE LUNG DISEASE (GOLD). <b>Global strategy for the diagnosis, management and prevention of chronic obstructive pulmonary disease: 2025 report</b>. Disponível em: <a href="https://www.goldcopd.org" target="_blank" rel="noopener">https://www.goldcopd.org</a>.</p>
+      <p>LANIADO-LABORÍN, R. Smoking and chronic obstructive pulmonary disease (COPD): parallel epidemics of the 21st century. <b>International Journal of Environmental Research and Public Health</b>, v. 6, n. 1, p. 209-224, jan. 2009.</p>
+      <p>SOCIEDADE BRASILEIRA DE PNEUMOLOGIA E TISIOLOGIA. <b>Consenso de Doença Pulmonar Obstrutiva Crônica</b>. Atualização 2006. Disponível em: site SBPT.</p>
+      <p>DECRAMER, M.; JANSSENS, W.; MIRAVITLLES, M. Chronic obstructive pulmonary disease. <b>Lancet</b>, v. 379, n. 9823, p. 1341-1351, abr. 2012.</p>
+      <p>GARTLEHNER, G.; HANSEN, R. A.; CARSON, S. S.; LOHR, K. N. Efficacy and safety of inhaled corticosteroids in patients with COPD: a systematic review and meta-analysis of health outcomes. <b>Annals of Family Medicine</b>, v. 4, n. 3, p. 253-262, 2006.</p>
+      <p>BRASIL. Ministério da Saúde. Secretaria de Atenção à Saúde. Departamento de Atenção Básica. <b>Doenças respiratórias crônicas</b>. Brasília: Ministério da Saúde, 2010. 160 p. (Série A. Normas e Manuais Técnicos) (Cadernos de Atenção Básica, n. 25).</p>
+    </div>
+    <div class="colofon">DPOC Clínico · dados mantidos apenas neste navegador (localStorage), sem envio a servidores.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. ESTADO E PERSISTÊNCIA
+   ============================================================ */
+var KEY = "dpoc_clinico_v1";
+
+function fresh(){
+  return {
+    v: 1,
+    paciente: { nome:"", idade:"", fumo:"", cigs:"", anos:"" },
+    base: { mmrc:null, cat:[null,null,null,null,null,null,null,null], fev1:"",
+            exMod:"", exSev:"", eosKnown:null, eos:"", bronqCronica:null },
+    tx: { atual:null, recomendado:null },
+    visitas: [],                 /* histórico de consultas fechadas */
+    re: null,                    /* reavaliação em andamento */
+    exac: null,                  /* exacerbação em andamento */
+    fup: { prazo:null, check:{} },
+    nav: { modo:"home", idx:0, retomar:null },
+    feitas: {}                   /* etapas concluídas: {2:true, ...} */
+  };
+}
+
+var S = load();
+
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(!raw) return fresh();
+    var o = JSON.parse(raw);
+    if(!o || o.v !== 1) return fresh();
+    var f = fresh();
+    for(var k in f) if(!(k in o)) o[k] = f[k];
+    return o;
+  }catch(e){ return fresh(); }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+}
+
+/* ============================================================
+   2. UTILITÁRIOS
+   ============================================================ */
+function $(s, r){ return (r||document).querySelector(s); }
+function $$(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function num(v){ var n = parseFloat(String(v).replace(",",".")); return isFinite(n) ? n : null; }
+function get(path){
+  var p = path.split("."), o = S;
+  for(var i=0;i<p.length;i++){ if(o==null) return null; o = o[p[i]]; }
+  return o;
+}
+function set(path, val){
+  var p = path.split("."), o = S;
+  for(var i=0;i<p.length-1;i++){ if(o[p[i]]==null) o[p[i]] = {}; o = o[p[i]]; }
+  o[p[p.length-1]] = val;
+  save();
+}
+function hoje(){
+  var d = new Date();
+  return d.toISOString().slice(0,10);
+}
+function dataBR(iso){
+  if(!iso) return "—";
+  var p = String(iso).slice(0,10).split("-");
+  return p.length===3 ? p[2]+"/"+p[1]+"/"+p[0] : iso;
+}
+function n1(x){ return (Math.round(x*10)/10).toString().replace(".", ","); }
+function plural(n, s, p){ return n===1 ? "1 "+s : n+" "+p; }
+
+/* ============================================================
+   3. INSTRUMENTOS (mMRC, CAT)
+   ============================================================ */
+var MMRC = [
+  { g:0, t:"Grau 0", d:"Só sinto falta de ar durante exercício intenso." },
+  { g:1, t:"Grau 1", d:"Sinto falta de ar quando apresso o passo no plano ou subo uma ladeira leve." },
+  { g:2, t:"Grau 2", d:"No plano, ando mais devagar que pessoas da minha idade por causa da falta de ar, ou preciso parar para respirar quando ando no meu próprio passo." },
+  { g:3, t:"Grau 3", d:"Paro para respirar depois de andar cerca de 100 metros ou após alguns minutos no plano." },
+  { g:4, t:"Grau 4", d:"A falta de ar me impede de sair de casa, ou sinto falta de ar para me vestir ou me despir." }
+];
+
+var CAT = [
+  { k:"Tosse",                a:"Nunca tenho tosse", b:"Estou sempre tossindo" },
+  { k:"Catarro",              a:"Não tenho nenhum catarro (secreção) no peito", b:"O meu peito está cheio de catarro (secreção)" },
+  { k:"Opressão no peito",    a:"Não sinto nenhuma opressão no peito", b:"Sinto uma grande opressão no peito" },
+  { k:"Subir escadas/ladeira",a:"Não sinto falta de ar quando subo uma ladeira ou um lance de escadas", b:"Sinto bastante falta de ar quando subo uma ladeira ou um lance de escadas" },
+  { k:"Atividades em casa",   a:"Não sinto nenhuma limitação nas minhas atividades em casa", b:"Sinto-me muito limitado nas minhas atividades em casa" },
+  { k:"Sair de casa",         a:"Sinto-me confiante para sair de casa, apesar da minha doença pulmonar", b:"Não me sinto nada confiante para sair de casa, por causa da minha doença pulmonar" },
+  { k:"Sono",                 a:"Durmo profundamente", b:"Não durmo profundamente devido à minha doença pulmonar" },
+  { k:"Energia",              a:"Tenho muita energia", b:"Não tenho nenhuma energia" }
+];
+
+function somaCat(arr){
+  var t = 0;
+  for(var i=0;i<8;i++){ if(arr[i]==null) return null; t += arr[i]; }
+  return t;
+}
+function macosAno(){
+  var c = num(S.paciente.cigs), a = num(S.paciente.anos);
+  if(c==null || a==null) return null;
+  return (c/20)*a;
+}
+
+/* ============================================================
+   4. LÓGICA CLÍNICA — CLASSIFICAÇÃO
+   ============================================================ */
+function grauGold(fev1){
+  if(fev1==null) return null;
+  if(fev1 >= 80) return 1;
+  if(fev1 >= 50) return 2;
+  if(fev1 >= 30) return 3;
+  return 4;
+}
+var GRAU_NOME = {1:"Leve", 2:"Moderada", 3:"Grave", 4:"Muito grave"};
+var GRAU_FAIXA = {1:"VEF₁ ≥ 80% do previsto", 2:"VEF₁ 50–79% do previsto", 3:"VEF₁ 30–49% do previsto", 4:"VEF₁ < 30% do previsto"};
+
+function grupoABE(mmrc, cat, exMod, exSev){
+  if((exMod||0) >= 2 || (exSev||0) >= 1) return "E";
+  if((mmrc!=null && mmrc >= 2) || (cat!=null && cat >= 10)) return "B";
+  return "A";
+}
+var GRUPO_TXT = {
+  A: { sint:"poucos sintomas", risco:"baixo risco de exacerbação",
+       crit:"mMRC 0–1 e CAT < 10, sem histórico relevante de exacerbações" },
+  B: { sint:"alto sintoma", risco:"baixo risco de exacerbação",
+       crit:"mMRC ≥ 2 ou CAT ≥ 10, sem histórico relevante de exacerbações" },
+  E: { sint:"sintomas variáveis", risco:"alto risco de exacerbação",
+       crit:"≥ 2 exacerbações moderadas ou ≥ 1 exacerbação com hospitalização no último ano" }
+};
+
+function classificacao(){
+  var fev1 = num(S.base.fev1);
+  var cat = somaCat(S.base.cat);
+  var g = grauGold(fev1);
+  var grupo = grupoABE(S.base.mmrc, cat, num(S.base.exMod), num(S.base.exSev));
+  return {
+    fev1:fev1, cat:cat, mmrc:S.base.mmrc, grau:g, grupo:grupo,
+    exMod:num(S.base.exMod)||0, exSev:num(S.base.exSev)||0,
+    rotulo: (g?("GOLD "+g):"Grau indeterminado") + ", Grupo " + grupo,
+    frase: (g? ("DPOC " + GRAU_NOME[g].toLowerCase()) : "grau espirométrico indeterminado") + ", " +
+           (grupo==="E" ? "alto risco de exacerbação" : (grupo==="B" ? "alto sintoma, baixo risco de exacerbação" : "poucos sintomas, baixo risco de exacerbação"))
+  };
+}
+
+/* ---------- objetivos terapêuticos (Etapa 3) ---------- */
+function objetivos(c){
+  var sintPrio = (c.grupo === "B") || (c.mmrc!=null && c.mmrc>=2) || (c.cat!=null && c.cat>=10);
+  var riscoPrio = (c.grupo === "E");
+  return {
+    sintomas: {
+      prio: sintPrio && !riscoPrio ? "principal" : (sintPrio ? "co-prioridade" : "secundária"),
+      itens: [
+        "Aliviar a dispneia e a tosse, melhorando a tolerância ao esforço",
+        "Melhorar o estado de saúde e a qualidade de vida (queda do CAT ≥ 2 pontos é clinicamente relevante)",
+        "Ampliar a capacidade funcional e a participação em atividades diárias"
+      ]
+    },
+    risco: {
+      prio: riscoPrio ? "principal" : (c.exMod+c.exSev>0 ? "co-prioridade" : "secundária"),
+      itens: [
+        "Prevenir novas exacerbações — cada exacerbação acelera a perda de função pulmonar",
+        "Reduzir a progressão da doença e preservar o VEF₁",
+        "Reduzir mortalidade (cessação do tabagismo, terapia inalatória otimizada, oxigenoterapia quando indicada)"
+      ]
+    },
+    sintPrio: sintPrio, riscoPrio: riscoPrio
+  };
+}
+
+/* ---------- tratamento inicial (Etapa 4) ---------- */
+var NAO_FARMA = [
+  ["Cessação do tabagismo","Intervenção isolada de maior impacto na história natural da doença. Aconselhamento estruturado + farmacoterapia (terapia de reposição de nicotina, bupropiona ou vareniclina)."],
+  ["Vacinação","Influenza anual; pneumocócica; COVID-19; dTpa (coqueluche) se não vacinado; herpes-zóster conforme faixa etária."],
+  ["Reabilitação pulmonar","Indicada a partir de mMRC ≥ 2 e após qualquer hospitalização por exacerbação; melhora dispneia, qualidade de vida e reduz reinternações."],
+  ["Técnica inalatória","Demonstrar e conferir a técnica na prescrição e em toda consulta — erro de técnica é a causa mais comum de falha terapêutica."],
+  ["Atividade física e nutrição","Estimular exercício regular; avaliar estado nutricional e sarcopenia."],
+  ["Comorbidades","Rastrear e tratar doença cardiovascular, ansiedade/depressão, osteoporose, apneia do sono e refluxo."]
+];
+
+function tratamentoInicial(c){
+  var eos = (S.base.eosKnown === "sim") ? num(S.base.eos) : null;
+  var r = { grupo:c.grupo, eos:eos, esquema:"", classe:null, itens:[], obs:[] };
+
+  if(c.grupo === "A"){
+    r.esquema = "Broncodilatador de ação prolongada";
+    r.classe = "mono";
+    r.itens = [
+      ["<b>Um broncodilatador de longa ação</b> — LAMA <i>ou</i> LABA, qualquer das classes.",1],
+      ["Preferir LAMA quando houver qualquer histórico de exacerbação (efeito superior na prevenção).",0],
+      ["Reavaliar o benefício sintomático; se não houver benefício, considerar suspender ou trocar de classe.",0]
+    ];
+  } else if(c.grupo === "B"){
+    r.esquema = "LABA + LAMA";
+    r.classe = "dual";
+    r.itens = [
+      ["<b>Dupla broncodilatação (LABA + LAMA)</b>, preferencialmente em <b>inalador único</b> — melhor adesão e menos erro de técnica.",1],
+      ["Não iniciar corticoide inalatório (ICS) neste grupo: sem histórico de exacerbação, o risco de pneumonia supera o benefício.",0],
+      ["Reabilitação pulmonar tem indicação formal (mMRC ≥ 2 / CAT elevado).",0]
+    ];
+  } else {
+    r.esquema = "LABA + LAMA";
+    r.classe = "dual";
+    r.itens = [["<b>Dupla broncodilatação (LABA + LAMA)</b> em inalador único como base do tratamento.",1]];
+    if(eos != null && eos >= 300){
+      r.esquema = "LABA + LAMA + ICS (terapia tripla)";
+      r.classe = "triple";
+      r.itens = [
+        ["<b>Terapia tripla (LABA + LAMA + ICS)</b> em inalador único.",1],
+        ["Eosinófilos = <b>" + eos + " células/µL (≥ 300)</b>: alta probabilidade de resposta ao corticoide inalatório na prevenção de exacerbações.",1],
+        ["Monitorar pneumonia, candidíase oral e disfonia; orientar bochecho após o uso.",0]
+      ];
+    } else if(eos != null && eos >= 100){
+      r.itens.push(["Eosinófilos = <b>" + eos + " células/µL (100–299)</b>: ICS não é rotina no tratamento inicial — reservar para quem mantém exacerbações apesar da dupla broncodilatação, ou para hospitalização/exacerbações frequentes.",0]);
+    } else if(eos != null){
+      r.itens.push(["Eosinófilos = <b>" + eos + " células/µL (< 100)</b>: baixa probabilidade de resposta ao ICS — manter dupla broncodilatação e evitar corticoide inalatório.",0]);
+    } else {
+      r.itens.push(["<b>Solicitar hemograma com contagem de eosinófilos</b>: valor ≥ 300 células/µL indicaria terapia tripla (LABA + LAMA + ICS) já no esquema inicial.",1]);
+    }
+    r.itens.push(["Considerar terapia tripla independentemente do eosinófilo se houver história de asma concomitante.",0]);
+    r.obs.push("Grupo E: a prevenção de exacerbações é o alvo principal — plano de ação por escrito e retorno precoce após qualquer evento.");
+  }
+  return r;
+}
+
+/* ---------- comparação e resposta ao tratamento (Etapa 6) ---------- */
+var DMCI_CAT = 2;   /* diferença mínima clinicamente importante do CAT */
+
+function ultimaVisita(){
+  return S.visitas.length ? S.visitas[S.visitas.length-1] : null;
+}
+function referencia(){
+  /* dados da consulta anterior usados como comparador */
+  var v = visitaAnterior();
+  if(v) return { data:v.data, cat:v.cat, mmrc:v.mmrc, tx:v.tx, grupo:v.grupo, grau:v.grau };
+  var c = classificacao();
+  return { data:null, cat:c.cat, mmrc:c.mmrc, tx:S.tx.recomendado, grupo:c.grupo, grau:c.grau };
+}
+
+function avaliaResposta(){
+  var ref = referencia();
+  var re = S.re || {};
+  var catNovo = somaCat(re.cat || []), mmrcNovo = re.mmrc;
+  var exMod = num(re.exMod)||0, exSev = num(re.exSev)||0;
+
+  var dCat = (ref.cat!=null && catNovo!=null) ? (catNovo - ref.cat) : null;
+  var dMmrc = (ref.mmrc!=null && mmrcNovo!=null) ? (mmrcNovo - ref.mmrc) : null;
+
+  var melhorouCat = (dCat != null) && (dCat <= -DMCI_CAT);
+  var melhorouMmrc = (dMmrc != null) && (dMmrc < 0);
+  var pioroumCat = (dCat != null) && (dCat >= DMCI_CAT);
+  var pioroumMmrc = (dMmrc != null) && (dMmrc > 0);
+  var sintomaticoAgora = (mmrcNovo!=null && mmrcNovo>=2) || (catNovo!=null && catNovo>=10);
+
+  var dispneiaRuim = sintomaticoAgora && !(melhorouCat || melhorouMmrc);
+  var exacRuim = (exMod + exSev) >= 1;
+
+  var motivoDisp;
+  if(!sintomaticoAgora) motivoDisp = "Sintomas atualmente controlados (mMRC < 2 e CAT < 10).";
+  else if(pioroumCat || pioroumMmrc) motivoDisp = "Sintomas pioraram em relação à consulta anterior e permanecem no patamar sintomático.";
+  else if(melhorouCat || melhorouMmrc) motivoDisp = "Houve melhora clinicamente relevante, mas o paciente segue sintomático — reavaliar na próxima consulta.";
+  else motivoDisp = "Sem melhora clinicamente relevante (variação do CAT < " + DMCI_CAT + " pontos e mMRC inalterado), com sintomas persistentes.";
+
+  var motivoExac;
+  if(!exacRuim) motivoExac = "Nenhuma exacerbação registrada desde a última consulta.";
+  else motivoExac = plural(exMod+exSev, "exacerbação", "exacerbações") + " desde a última consulta" +
+        (exSev>0 ? " (" + plural(exSev,"com hospitalização","com hospitalização") + ")" : "") + " — controle insuficiente do risco.";
+
+  var ramo = exacRuim ? "exacerbacao" : (dispneiaRuim ? "dispneia" : "estavel");
+
+  return {
+    ref:ref, catNovo:catNovo, mmrcNovo:mmrcNovo, exMod:exMod, exSev:exSev,
+    dCat:dCat, dMmrc:dMmrc, melhorouCat:melhorouCat, melhorouMmrc:melhorouMmrc,
+    dispneiaRuim:dispneiaRuim, exacRuim:exacRuim, ramo:ramo,
+    motivoDisp:motivoDisp, motivoExac:motivoExac,
+    ambos: dispneiaRuim && exacRuim,
+    adesao: re.adesao, tecnica: re.tecnica, tx: re.tx
+  };
+}
+
+/* ---------- ajuste farmacológico (Etapa 7) ---------- */
+var TX_NOME = {
+  mono:  "Monoterapia broncodilatadora (LABA ou LAMA)",
+  dual:  "Dupla broncodilatação (LABA + LAMA)",
+  triple:"Terapia tripla (LABA + LAMA + ICS)",
+  outro: "Outro esquema / sem broncodilatador de longa ação"
+};
+
+function precisaExtras(a){
+  return a.ramo === "exacerbacao";
+}
+
+function planoAjuste(){
+  var a = avaliaResposta();
+  var re = S.re || {};
+  var tx = re.tx || S.tx.recomendado || "dual";
+  var eos = (re.eosKnown === "sim") ? num(re.eos) : ((S.base.eosKnown === "sim") ? num(S.base.eos) : null);
+  var fev1 = num(S.base.fev1);
+  var bronq = re.bronqCronica != null ? re.bronqCronica : S.base.bronqCronica;
+  var fumo = re.fumo || S.paciente.fumo;
+
+  var p = { ramo:a.ramo, txAtual:tx, eos:eos, acoes:[], antes:[], alertas:[], novoEsquema:null, a:a };
+
+  /* verificação obrigatória antes de qualquer escalonamento */
+  p.antes = [
+    ["Técnica inalatória", re.tecnica === "inadequada"
+        ? "<b>Técnica inadequada registrada.</b> Corrigir e reensinar o dispositivo (ou trocar para dispositivo mais adequado ao fluxo inspiratório) antes de escalonar a farmacoterapia."
+        : "Reconferida nesta consulta. Repetir a demonstração a cada retorno."],
+    ["Adesão", re.adesao === "ruim"
+        ? "<b>Adesão irregular registrada.</b> Investigar causa (custo, efeitos adversos, complexidade do esquema, crença sobre a doença) e simplificar para inalador único / dose única diária antes de escalonar."
+        : (re.adesao === "parcial"
+            ? "<b>Adesão parcial.</b> Simplificar o esquema e pactuar rotina de uso antes de considerar troca de classe."
+            : "Adesão referida como adequada.")],
+    ["Diagnósticos alternativos", "Descartar causas não-DPOC de piora: insuficiência cardíaca, tromboembolismo pulmonar, anemia, descondicionamento, ansiedade, obesidade, bronquiectasias."]
+  ];
+
+  if(a.ramo === "estavel"){
+    p.novoEsquema = tx;
+    p.acoes = [
+      ["<b>Manter o esquema atual</b> — " + TX_NOME[tx] + ". Resposta adequada nas duas dimensões (sintomas e exacerbações).",1],
+      ["Manter medidas não farmacológicas e revisar técnica inalatória e adesão a cada retorno.",0],
+      ["Se em terapia tripla, sem exacerbações há 12 meses e eosinófilos < 300 células/µL, é razoável considerar a <b>retirada do ICS</b> mantendo LABA + LAMA, com vigilância clínica.",0]
+    ];
+    return p;
+  }
+
+  if(a.ramo === "dispneia"){
+    if(tx === "mono"){
+      p.novoEsquema = "dual";
+      p.acoes = [
+        ["<b>Escalonar para LABA + LAMA</b> (dupla broncodilatação), preferencialmente em inalador único.",1],
+        ["Reavaliar em 4 semanas com CAT e mMRC.",0],
+        ["Indicar reabilitação pulmonar.",1]
+      ];
+    } else if(tx === "dual"){
+      p.novoEsquema = "dual";
+      p.acoes = [
+        ["<b>Não escalonar automaticamente</b>: o paciente já está em broncodilatação dupla, que é o teto do braço de dispneia.",1],
+        ["Rever técnica inalatória e adesão; <b>considerar trocar de dispositivo ou de moléculas</b> dentro das mesmas classes.",1],
+        ["<b>Investigar outras causas de dispneia</b> (cardiopatia, TEP, anemia, descondicionamento, ansiedade, obesidade) antes de atribuir tudo à DPOC.",1],
+        ["Indicar/reforçar <b>reabilitação pulmonar</b>; avaliar necessidade de oxigenoterapia se SpO₂ ≤ 88% ou PaO₂ ≤ 55 mmHg em repouso.",1],
+        ["Acrescentar ICS <b>não</b> está indicado quando o problema é apenas dispneia, sem exacerbações.",0]
+      ];
+    } else {
+      p.novoEsquema = "triple";
+      p.acoes = [
+        ["Já em terapia tripla: <b>não há escalonamento broncodilatador adicional</b>. Rever técnica, adesão e dispositivo.",1],
+        ["<b>Investigar causas não-DPOC de dispneia</b> (insuficiência cardíaca, TEP, anemia, descondicionamento, ansiedade).",1],
+        ["Reabilitação pulmonar; avaliar oxigenoterapia domiciliar e indicação cirúrgica/broncoscópica de redução de volume em enfisema selecionado.",1],
+        ["Se não houver exacerbações e eosinófilos < 300 células/µL, considerar <b>retirada do ICS</b> mantendo LABA + LAMA.",0]
+      ];
+    }
+    return p;
+  }
+
+  /* ramo exacerbação (inclui o caso dispneia + exacerbação) */
+  if(a.ambos){
+    p.alertas.push("Dispneia <b>e</b> exacerbações persistentes: seguir o braço de exacerbações, que já contempla a broncodilatação máxima.");
+  }
+
+  if(tx === "mono"){
+    p.novoEsquema = (eos!=null && eos>=300) ? "triple" : "dual";
+    p.acoes = [
+      ["<b>Escalonar para LABA + LAMA</b> — monoterapia é insuficiente para quem mantém exacerbações.",1]
+    ];
+    if(eos!=null && eos>=300) p.acoes.push(["Eosinófilos <b>" + eos + " células/µL (≥ 300)</b>: iniciar diretamente <b>terapia tripla (LABA + LAMA + ICS)</b>.",1]);
+    else p.acoes.push(["Solicitar/rever contagem de eosinófilos para decidir sobre ICS na próxima etapa.",0]);
+  } else if(tx === "dual"){
+    if(eos!=null && eos>=300){
+      p.novoEsquema = "triple";
+      p.acoes = [
+        ["Eosinófilos <b>" + eos + " células/µL (≥ 300)</b> → <b>adicionar ICS: escalonar para terapia tripla (LABA + LAMA + ICS)</b>, preferencialmente em inalador único.",1],
+        ["Monitorar pneumonia, candidíase oral e disfonia; orientar bochecho após o uso.",0]
+      ];
+    } else {
+      p.novoEsquema = "dual";
+      p.acoes = [
+        [(eos!=null ? "Eosinófilos <b>" + eos + " células/µL (< 300)</b>" : "Eosinófilos não disponíveis (assumido < 300)") +
+         " → benefício do ICS é pouco provável. <b>Manter LABA + LAMA</b> e considerar as alternativas abaixo.",1]
+      ];
+      if(eos==null) p.acoes.push(["<b>Solicitar hemograma com eosinófilos</b> — se ≥ 300 células/µL, a conduta muda para terapia tripla.",1]);
+      var roflOk = (fev1!=null && fev1 < 50) && bronq === "sim";
+      p.acoes.push([
+        "<b>Roflumilaste</b> 500 µg/dia — " + (roflOk
+          ? "<b>critérios preenchidos</b> (VEF₁ " + n1(fev1) + "% < 50% e bronquite crônica). Advertir sobre náusea, diarreia, perda de peso e alterações do humor."
+          : "critérios <b>não</b> preenchidos (exige VEF₁ < 50% do previsto <i>e</i> bronquite crônica" +
+            (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "") +
+            (bronq==="nao" ? "; sem bronquite crônica" : "") + ")."), roflOk?1:0]);
+      var aziOk = (fumo === "ex");
+      p.acoes.push([
+        "<b>Azitromicina profilática</b> (250 mg/dia ou 500 mg 3×/semana por até 1 ano) — " + (aziOk
+          ? "<b>perfil favorável</b> (ex-fumante). Antes de iniciar: ECG (intervalo QT), audiometria/queixa auditiva e atenção à resistência bacteriana."
+          : (fumo === "fumante"
+              ? "benefício <b>menor em fumantes ativos</b>; priorizar cessação do tabagismo antes de indicar."
+              : "avaliar caso a caso; benefício demonstrado principalmente em ex-fumantes.")) +
+        " Não usar em conjunto de rotina com roflumilaste.", aziOk?1:0]);
+    }
+  } else {
+    p.novoEsquema = "triple";
+    p.acoes = [
+      ["Já em <b>terapia tripla</b> com exacerbações persistentes: não há escalonamento inalatório adicional.",1]
+    ];
+    var roflOk2 = (fev1!=null && fev1 < 50) && bronq === "sim";
+    p.acoes.push(["<b>Adicionar roflumilaste</b> 500 µg/dia — " + (roflOk2
+        ? "<b>critérios preenchidos</b> (VEF₁ " + n1(fev1) + "% < 50% e bronquite crônica)."
+        : "exige VEF₁ < 50% do previsto e bronquite crônica" + (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "") + "."), roflOk2?1:0]);
+    var aziOk2 = (fumo === "ex");
+    p.acoes.push(["<b>Adicionar azitromicina</b> profilática — " + (aziOk2
+        ? "<b>perfil favorável</b> (ex-fumante); checar QT no ECG e audição antes de iniciar."
+        : "benefício menor em fumante ativo; priorizar cessação."), aziOk2?1:0]);
+    p.acoes.push(["Se eosinófilos < 100 células/µL e nenhum benefício aparente do ICS, é razoável reavaliar a manutenção do corticoide inalatório.",0]);
+    p.acoes.push(["Investigar <b>bronquiectasias</b>, infecção crônica por <i>Pseudomonas</i>, deficiência de alfa-1-antitripsina e comorbidade cardiovascular descompensada.",1]);
+    p.acoes.push(["Encaminhar ao pneumologista / avaliar programas de doença avançada e cuidados paliativos quando aplicável.",0]);
+  }
+  return p;
+}
+
+/* ---------- exacerbação aguda (Etapa 8) ---------- */
+var SINAIS_GRAVES = [
+  ["musc","Uso de musculatura acessória / respiração paradoxal"],
+  ["conf","Confusão mental, sonolência ou rebaixamento do nível de consciência"],
+  ["cian","Cianose central"],
+  ["fr","Frequência respiratória > 30 irpm"],
+  ["sat","SpO₂ < 90% em ar ambiente ou queda em relação ao basal"],
+  ["hemo","Instabilidade hemodinâmica ou arritmia de início recente"],
+  ["falen","Falência respiratória (necessidade de suporte ventilatório)"],
+  ["edema","Edema periférico novo / sinais de cor pulmonale"],
+  ["falha","Falha da resposta ao tratamento inicial em domicílio"],
+  ["suporte","Comorbidade grave descompensada ou suporte domiciliar insuficiente"]
+];
+var CARDINAIS = [
+  ["disp","Aumento da dispneia"],
+  ["vol","Aumento do volume do escarro"],
+  ["pur","Aumento da purulência do escarro"]
+];
+
+function planoExacerbacao(){
+  var e = S.exac || {};
+  var sg = e.sinais || {}, cd = e.cardinais || {};
+  var graves = SINAIS_GRAVES.filter(function(s){ return sg[s[0]]; });
+  var nCard = CARDINAIS.filter(function(c){ return cd[c[0]]; }).length;
+  var pur = !!cd.pur, vol = !!cd.vol, disp = !!cd.disp;
+
+  var grav;
+  if(graves.length) grav = "grave";
+  else if(e.intensidade === "sim") grav = "moderada";
+  else if(e.intensidade === "nao") grav = "leve";
+  else grav = null;
+
+  var atb = pur && (vol || disp);          /* Anthonisen: purulência + 1 outro cardinal */
+  var atb3 = nCard === 3;
+  var cort = (grav === "moderada" || grav === "grave");
+
+  return {
+    grav:grav, graves:graves, nCard:nCard, atb:atb || atb3, atb3:atb3,
+    cort:cort, pur:pur, vol:vol, disp:disp,
+    fev1:num(S.base.fev1)
+  };
+}
+
+/* ---------- acompanhamento (Etapa 9) ---------- */
+var CHECKLIST = [
+  ["tecnica","Técnica inalatória","Pedir para o paciente demonstrar o uso do dispositivo, não apenas relatar."],
+  ["adesao","Adesão ao tratamento","Contagem de doses/receitas; investigar custo e efeitos adversos."],
+  ["tabaco","Tabagismo","Status atual, disposição para parar e oferta de tratamento a cada consulta."],
+  ["vacina","Vacinação em dia","Influenza anual, pneumocócica, COVID-19, dTpa e herpes-zóster."],
+  ["cv","Comorbidade cardiovascular","Hipertensão, doença coronariana, insuficiência cardíaca, fibrilação atrial."],
+  ["humor","Ansiedade e depressão","Rastreio ativo — prevalência elevada e impacto direto na adesão."],
+  ["osteo","Osteoporose","Risco aumentado por corticoide sistêmico, tabagismo e baixo IMC."],
+  ["reab","Reabilitação pulmonar","Indicar/renovar, sobretudo após exacerbação e com mMRC ≥ 2."],
+  ["espiro","Espirometria e sintomas","Repetir espirometria pelo menos anualmente; reaplicar CAT e mMRC."],
+  ["plano","Plano de ação escrito","Orientar reconhecimento precoce da exacerbação e quando procurar atendimento."]
+];
+
+/* ============================================================
+   5. COMPONENTES DE INTERFACE
+   ============================================================ */
+function optRadio(path, valor, titulo, desc, extra){
+  var sel = String(get(path)) === String(valor);
+  return '<button type="button" class="opt' + (sel?' sel':'') + '" data-opt="' + esc(path) +
+         '" data-val="' + esc(valor) + '"' + (extra||"") + '>' +
+         '<span class="tick"></span><span class="txt"><span class="lab">' + titulo + '</span>' +
+         (desc ? '<span class="desc">' + desc + '</span>' : '') + '</span></button>';
+}
+function optCheck(path, titulo, desc){
+  var sel = !!get(path);
+  return '<button type="button" class="opt check' + (sel?' sel':'') + '" data-check="' + esc(path) + '">' +
+         '<span class="tick"></span><span class="txt"><span class="lab">' + titulo + '</span>' +
+         (desc ? '<span class="desc">' + desc + '</span>' : '') + '</span></button>';
+}
+function campoNum(path, label, sufixo, ph, sub){
+  return '<div class="field"><label>' + label + '</label><div class="suffix">' +
+    '<input type="number" inputmode="decimal" data-path="' + esc(path) + '" value="' + esc(get(path)) + '" placeholder="' + esc(ph||"") + '">' +
+    (sufixo ? '<span>' + sufixo + '</span>' : '') + '</div>' +
+    (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
+}
+function escala05(path){
+  var v = get(path);
+  var h = '<div class="scale">';
+  for(var i=0;i<=5;i++){
+    h += '<button type="button" data-scale="' + esc(path) + '" data-val="' + i + '"' +
+         (v===i ? ' class="sel"' : '') + '>' + i + '</button>';
+  }
+  return h + '</div>';
+}
+function listaRx(itens){
+  return '<ul class="rx">' + itens.map(function(it){
+    return '<li><span class="bullet' + (it[1] ? '' : ' muted') + '"></span><span>' + it[0] + '</span></li>';
+  }).join("") + '</ul>';
+}
+function painel(titulo, corpo, tight, extra){
+  return '<section class="panel"><div class="panel-h">' + titulo + (extra||"") + '</div>' +
+         '<div class="panel-b' + (tight?' tight':'') + '">' + corpo + '</div></section>';
+}
+function dl(pares){
+  return '<dl class="data">' + pares.map(function(p){
+    return '<dt>' + p[0] + '</dt><dd>' + p[1] + '</dd>';
+  }).join("") + '</dl>';
+}
+function deltaTxt(d, invertido){
+  if(d==null) return '<span class="delta flat">—</span>';
+  var cls = d>0 ? "up" : (d<0 ? "down" : "flat");
+  var sinal = d>0 ? "+" : "";
+  return '<span class="delta ' + cls + '">' + sinal + n1(d) + '</span>';
+}
+
+/* ============================================================
+   6. TELAS
+   ============================================================ */
+var T = {};   /* registro de telas */
+
+/* ---------- início ---------- */
+T.home = {
+  step:0, wide:true, semNav:true,
+  render:function(){
+    var temPac = !!S.paciente.nome;
+    var c = temPac ? classificacao() : null;
+    var h = '<section class="card">';
+    h += '<div class="eyebrow">Apoio à decisão</div>';
+    h += '<h1 class="q-title">Manejo da DPOC segundo a estratégia GOLD</h1>';
+    h += '<p class="q-help">Avaliação inicial, classificação espirométrica e ABE, definição de objetivos, escolha do tratamento, reavaliação de resposta, ajuste farmacológico, manejo de exacerbação e plano de acompanhamento.</p>';
+    h += '<div class="home-list">';
+    if(temPac){
+      h += '<button class="home-card" data-go="continuar"><span class="ic">5</span><span><h3>Registrar retorno de ' + esc(S.paciente.nome) + '</h3>' +
+           '<p>Reavaliação (Etapa 5) com os dados do paciente já carregados' + (c && c.grau ? ' · último registro: ' + esc(c.rotulo) : '') + '</p></span><span class="arrow">›</span></button>';
+      h += '<button class="home-card" data-go="revisar"><span class="ic">2</span><span><h3>Revisar avaliação inicial</h3>' +
+           '<p>Voltar às etapas 1 a 4 e corrigir ou completar os dados basais</p></span><span class="arrow">›</span></button>';
+    }
+    h += '<button class="home-card" data-go="novo"><span class="ic">1</span><span><h3>' + (temPac ? 'Nova avaliação (outro paciente)' : 'Iniciar avaliação') + '</h3>' +
+         '<p>Etapa 1 — anamnese, mMRC, CAT, espirometria e histórico de exacerbações</p></span><span class="arrow">›</span></button>';
+    h += '<button class="home-card alert" data-go="exac"><span class="ic">8</span><span><h3>Exacerbação aguda</h3>' +
+         '<p>Classificação de gravidade e conduta imediata — acessível a qualquer momento</p></span><span class="arrow">›</span></button>';
+    h += '</div>';
+    if(S.visitas.length){
+      h += '<div class="sect-label" style="margin-top:26px">Histórico do paciente</div>';
+      h += '<ul class="timeline">' + S.visitas.slice().reverse().map(function(v){
+        return '<li><span class="dt">' + dataBR(v.data) + '</span><span><b>' + esc(v.titulo) + '</b>' +
+               ' · CAT ' + (v.cat==null?"—":v.cat) + ' · mMRC ' + (v.mmrc==null?"—":v.mmrc) +
+               ' · ' + esc(v.esquema) + '</span></li>';
+      }).join("") + '</ul>';
+      h += '<div class="navbar"><button class="btn btn-quiet" data-go="apagar">Apagar dados deste paciente</button></div>';
+    }
+    h += '</section>';
+    return h;
+  }
+};
+
+/* ---------- ETAPA 1 ---------- */
+T.nome = {
+  step:1, titulo:"Identificação do paciente", ajuda:"Os dados ficam apenas neste navegador e podem ser apagados a qualquer momento.",
+  render:function(){
+    return '<div class="field"><label>Nome do paciente</label>' +
+      '<input type="text" data-path="paciente.nome" value="' + esc(S.paciente.nome) + '" placeholder="Nome completo" autocomplete="off"></div>';
+  },
+  valid:function(){ return S.paciente.nome.trim() ? true : "Informe o nome do paciente."; }
+};
+T.idade = {
+  step:1, titulo:"Idade",
+  ajuda:"A DPOC é rara antes dos 40 anos; abaixo dessa idade, considerar deficiência de alfa-1-antitripsina e outros diagnósticos.",
+  render:function(){ return campoNum("paciente.idade","Idade","anos","Ex.: 64"); },
+  valid:function(){
+    var v = num(S.paciente.idade);
+    if(v==null) return "Informe a idade.";
+    if(v<0 || v>120) return "Idade fora da faixa esperada.";
+    return true;
+  }
+};
+T.fumo = {
+  step:1, titulo:"Tabagismo e carga tabágica",
+  ajuda:"A carga tabágica é calculada em maços-ano: (cigarros por dia ÷ 20) × anos de tabagismo.",
+  render:function(){
+    var h = '<div class="opts">' +
+      optRadio("paciente.fumo","fumante","Fumante ativo","Mantém o consumo atualmente") +
+      optRadio("paciente.fumo","ex","Ex-fumante","Cessou o tabagismo") +
+      optRadio("paciente.fumo","nunca","Nunca fumou","Investigar exposição a biomassa, poeira ocupacional e poluição") +
+      '</div>';
+    if(S.paciente.fumo === "fumante" || S.paciente.fumo === "ex"){
+      h += '<div style="margin-top:18px"><div class="inline-2">' +
+        campoNum("paciente.cigs","Cigarros por dia","cig./dia","Ex.: 20") +
+        campoNum("paciente.anos","Durante quantos anos","anos","Ex.: 30") +
+        '</div>';
+      var m = macosAno();
+      h += '<div class="calc"><span class="k">Carga tabágica</span><span class="v">' +
+           (m==null ? "—" : n1(m)) + '</span><span class="u">maços-ano</span>' +
+           (m!=null && m>=20 ? '<span class="tag danger" style="margin-left:auto">≥ 20 maços-ano</span>' : '') + '</div>';
+      if(m!=null && m>=20) h += '<div class="note warn" style="margin-top:12px">Carga tabágica ≥ 20 maços-ano com sintomas respiratórios: risco elevado para DPOC. Rastrear também neoplasia de pulmão conforme critérios vigentes.</div>';
+      h += '</div>';
+    }
+    if(S.paciente.fumo === "nunca"){
+      h += '<div class="note" style="margin-top:18px">Sem tabagismo: documentar exposição a <b>fumaça de biomassa</b> (fogão a lenha), poeiras e vapores ocupacionais, poluição e antecedentes de tuberculose ou infecções respiratórias na infância.</div>';
+    }
+    return h;
+  },
+  valid:function(){
+    if(!S.paciente.fumo) return "Selecione a situação de tabagismo.";
+    if(S.paciente.fumo !== "nunca"){
+      if(num(S.paciente.cigs)==null || num(S.paciente.anos)==null) return "Informe cigarros por dia e anos de tabagismo.";
+    }
+    return true;
+  },
+  commit:function(){
+    if(S.paciente.fumo === "nunca"){ S.paciente.cigs = "0"; S.paciente.anos = "0"; save(); }
+  }
+};
+T.mmrc = {
+  step:1, titulo:"Escala mMRC — dispneia",
+  ajuda:"Modified Medical Research Council. Selecione a afirmação que melhor descreve a limitação do paciente.",
+  auto:true,
+  render:function(){
+    return '<div class="opts">' + MMRC.map(function(m){
+      return optRadio("base.mmrc", m.g, m.t, m.d);
+    }).join("") + '</div>';
+  },
+  valid:function(){ return S.base.mmrc!=null ? true : "Selecione um grau da escala mMRC."; }
+};
+for(var ci=0; ci<8; ci++){
+  (function(i){
+    T["cat"+i] = {
+      step:1, auto:true,
+      titulo:"CAT — " + (i+1) + " de 8: " + CAT[i].k,
+      ajuda:"COPD Assessment Test. Para cada item, 0 corresponde à ausência do problema e 5 ao impacto máximo.",
+      render:function(){
+        var h = '<div class="scale-anchors"><span><b>0</b> · ' + CAT[i].a + '</span><span><b>5</b> · ' + CAT[i].b + '</span></div>';
+        h += escala05("base.cat." + i);
+        var parcial = 0, n = 0;
+        for(var j=0;j<8;j++) if(S.base.cat[j]!=null){ parcial += S.base.cat[j]; n++; }
+        h += '<div class="calc"><span class="k">Parcial (' + n + '/8 itens)</span><span class="v">' + parcial + '</span><span class="u">de 40</span></div>';
+        return h;
+      },
+      valid:function(){ return S.base.cat[i]!=null ? true : "Selecione um valor de 0 a 5."; }
+    };
+  })(ci);
+}
+T.fev1 = {
+  step:1, titulo:"Espirometria — VEF₁ pós-broncodilatador",
+  ajuda:"O diagnóstico de DPOC exige VEF₁/CVF pós-broncodilatador < 0,70. O percentual do previsto define o grau GOLD 1 a 4.",
+  render:function(){
+    var h = campoNum("base.fev1","VEF₁ pós-broncodilatador","% do previsto","Ex.: 62");
+    var v = num(S.base.fev1), g = grauGold(v);
+    if(g){
+      h += '<div class="calc"><span class="k">Grau espirométrico</span><span class="v">GOLD ' + g + '</span><span class="u">' + GRAU_NOME[g].toLowerCase() + ' · ' + GRAU_FAIXA[g] + '</span></div>';
+    }
+    h += '<div class="note" style="margin-top:14px">GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%</div>';
+    return h;
+  },
+  valid:function(){
+    var v = num(S.base.fev1);
+    if(v==null) return "Informe o VEF₁ pós-broncodilatador em % do previsto.";
+    if(v<=0 || v>150) return "Valor fora da faixa plausível (0–150%).";
+    return true;
+  }
+};
+T.exac = {
+  step:1, titulo:"Exacerbações nos últimos 12 meses",
+  ajuda:"Considere apenas eventos que preencham o critério de exacerbação.",
+  render:function(){
+    var h = '<div class="note warn">Critério mandatório: <b>piora aguda dos sintomas respiratórios</b> com <b>aumento do volume do escarro e/ou da purulência</b>, além do habitual e por mais de 24 horas, exigindo mudança de tratamento. Piora isolada e transitória da dispneia, sem alteração do escarro, não caracteriza exacerbação.</div>';
+    h += '<div style="margin-top:18px" class="inline-2">' +
+      campoNum("base.exMod","Exacerbações moderadas","eventos","0","Tratadas com corticoide oral e/ou antibiótico, sem internação.") +
+      campoNum("base.exSev","Exacerbações graves","eventos","0","Necessitaram de atendimento de emergência ou hospitalização.") +
+      '</div>';
+    var m = num(S.base.exMod)||0, s = num(S.base.exSev)||0;
+    if(m>=2 || s>=1){
+      h += '<div class="note danger" style="margin-top:14px"><b>Critério de Grupo E atendido</b> (' + m + ' moderada(s) e ' + s + ' grave(s)). O risco de exacerbação prevalece sobre a carga de sintomas na classificação ABE.</div>';
+    }
+    return h;
+  },
+  valid:function(){
+    if(num(S.base.exMod)==null || num(S.base.exSev)==null) return "Informe os dois valores (use 0 quando não houver).";
+    if(num(S.base.exMod)<0 || num(S.base.exSev)<0) return "Valores não podem ser negativos.";
+    return true;
+  }
+};
+
+/* ---------- ETAPA 2 — classificação ---------- */
+T.classif = {
+  step:2, wide:true, titulo:"Classificação do paciente", proximo:"Definir objetivos",
+  render:function(){
+    var c = classificacao();
+    var m = macosAno();
+    var esq = dl([
+      ["Paciente", esc(S.paciente.nome)],
+      ["Idade", (num(S.paciente.idade)!=null ? num(S.paciente.idade) + " anos" : "—")],
+      ["Tabagismo", S.paciente.fumo==="nunca" ? "Nunca fumou" : (S.paciente.fumo==="ex" ? "Ex-fumante" : "Fumante ativo")],
+      ["Carga tabágica", m==null ? "—" : n1(m) + " maços-ano"],
+      ["VEF₁ pós-BD", c.fev1==null ? "—" : n1(c.fev1) + "%"],
+      ["CAT total", (c.cat==null?"—":c.cat) + " / 40"],
+      ["mMRC", c.mmrc==null ? "—" : "Grau " + c.mmrc],
+      ["Exacerbações moderadas", c.exMod + " em 12 meses"],
+      ["Exacerbações graves", c.exSev + " em 12 meses"]
+    ]);
+
+    var tags = '<div class="tags">' +
+      '<span class="tag accent">GOLD ' + c.grau + ' · ' + GRAU_NOME[c.grau] + '</span>' +
+      '<span class="tag ' + (c.grupo==="E"?"danger":(c.grupo==="B"?"warn":"ok")) + '">Grupo ' + c.grupo + '</span>' +
+      '<span class="tag">' + (c.cat>=10 || c.mmrc>=2 ? "Sintomático" : "Pouco sintomático") + '</span>' +
+      '</div>';
+
+    var vered = '<div class="verdict"><div class="big">' + c.rotulo + '</div>' +
+      '<div class="sub">' + c.frase.charAt(0).toUpperCase() + c.frase.slice(1) + '.</div>' + tags + '</div>';
+
+    var comoGrau = '<div class="sect-label">Como o grau foi definido</div>' + listaRx([
+      ["VEF₁ pós-broncodilatador de <b>" + n1(c.fev1) + "%</b> do previsto → <b>GOLD " + c.grau + "</b> (" + GRAU_FAIXA[c.grau] + ").",1],
+      ["Escala: GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%.",0]
+    ]);
+    var itensGrupo = [];
+    if(c.grupo === "E"){
+      itensGrupo.push(["<b>" + c.exMod + " exacerbação(ões) moderada(s)</b> e <b>" + c.exSev + " grave(s)</b> no último ano → critério de <b>Grupo E</b> (≥ 2 moderadas ou ≥ 1 com hospitalização).",1]);
+      itensGrupo.push(["O histórico de exacerbações <b>prevalece</b> sobre a carga de sintomas: o paciente é E mesmo com CAT ou mMRC baixos.",1]);
+    } else {
+      itensGrupo.push(["Histórico de exacerbações abaixo do limiar de risco (" + c.exMod + " moderada(s), " + c.exSev + " grave(s)) → grupo definido pelos sintomas.",0]);
+      if(c.grupo === "B") itensGrupo.push(["mMRC " + c.mmrc + (c.mmrc>=2 ? " (≥ 2)" : "") + " e CAT " + c.cat + (c.cat>=10 ? " (≥ 10)" : "") + " → <b>Grupo B</b> (mMRC ≥ 2 <i>ou</i> CAT ≥ 10).",1]);
+      else itensGrupo.push(["mMRC " + c.mmrc + " (0–1) e CAT " + c.cat + " (&lt; 10) → <b>Grupo A</b>.",1]);
+    }
+    var comoGrupo = '<div class="sect-label">Como o grupo foi definido (classificação ABE)</div>' + listaRx(itensGrupo);
+
+    var nota = '<div class="note" style="margin-top:18px">Na classificação ABE atual, o grau espirométrico (1–4) e o grupo (A, B ou E) são <b>eixos independentes</b>: o grau descreve a gravidade da obstrução e tem valor prognóstico; o grupo, a carga de sintomas e o risco de exacerbação, e é ele quem orienta a escolha farmacológica.</div>';
+
+    return '<div class="result-grid">' +
+      painel("Dados consolidados", esq, true) +
+      '<div>' + painel("Classificação", vered + '<div style="padding:0 18px 18px">' + comoGrau + comoGrupo + '</div>', true) + nota + '</div>' +
+      '</div>';
+  },
+  commit:function(){ S.feitas[2] = true; save(); }
+};
+
+/* ---------- ETAPA 3 — objetivos ---------- */
+T.objetivos = {
+  step:3, wide:true, titulo:"Objetivos terapêuticos", proximo:"Escolher tratamento inicial",
+  render:function(){
+    var c = classificacao(), o = objetivos(c);
+    var b1 = painel('Reduzir sintomas' + (o.sintPrio && !o.riscoPrio ? '<span class="tag accent" style="margin-left:auto">Prioridade</span>' : (o.sintPrio ? '<span class="tag warn" style="margin-left:auto">Co-prioridade</span>' : '<span class="tag" style="margin-left:auto">Manutenção</span>')),
+      '<p style="font-size:14px;color:var(--ink-2);margin:0 0 14px">' +
+      (o.sintPrio ? 'Paciente sintomático (mMRC ' + c.mmrc + ' · CAT ' + c.cat + '): o alívio da dispneia e a recuperação funcional são alvo imediato.'
+                  : 'Paciente pouco sintomático (mMRC ' + c.mmrc + ' · CAT ' + c.cat + '): manter o controle já obtido e reavaliar periodicamente.') + '</p>' +
+      listaRx(o.sintomas.itens.map(function(i){ return [i, o.sintPrio?1:0]; })));
+
+    var b2 = painel('Reduzir risco futuro' + (o.riscoPrio ? '<span class="tag danger" style="margin-left:auto">Prioridade</span>' : (o.risco.prio==="co-prioridade" ? '<span class="tag warn" style="margin-left:auto">Co-prioridade</span>' : '<span class="tag" style="margin-left:auto">Manutenção</span>')),
+      '<p style="font-size:14px;color:var(--ink-2);margin:0 0 14px">' +
+      (o.riscoPrio ? 'Grupo E: o paciente já demonstrou fenótipo exacerbador. Prevenir o próximo evento é o objetivo dominante do plano.'
+                   : (c.exMod + c.exSev > 0 ? 'Houve exacerbação no último ano, ainda que abaixo do limiar de Grupo E: manter vigilância ativa.'
+                   : 'Sem exacerbações relevantes no último ano: o objetivo é preservar essa condição.')) + '</p>' +
+      listaRx(o.risco.itens.map(function(i){ return [i, o.riscoPrio?1:0]; })));
+
+    var contexto = '<div class="note accent">Classificação atual: <b>' + c.rotulo + '</b> — ' + c.frase + '. ' +
+      (o.riscoPrio ? 'No Grupo E, a redução do risco orienta a escolha do esquema; o controle sintomático segue em paralelo.'
+                   : 'Nos Grupos A e B, o controle de sintomas orienta a escolha do esquema, sem perder de vista a prevenção de eventos futuros.') + '</div>';
+
+    return contexto + '<div class="result-grid" style="margin-top:16px">' + b1 + b2 + '</div>' +
+      '<div class="note" style="margin-top:16px">Os dois objetivos são perseguidos <b>sempre</b>. O que muda entre os grupos é qual deles determina a intensidade inicial da terapia inalatória e a frequência de reavaliação.</div>';
+  },
+  commit:function(){ S.feitas[3] = true; save(); }
+};
+
+/* ---------- ETAPA 4 — tratamento inicial ---------- */
+T.eos = {
+  step:4, titulo:"Contagem de eosinófilos no sangue",
+  ajuda:"O eosinófilo sanguíneo é o principal biomarcador para indicar corticoide inalatório (ICS) na DPOC.",
+  render:function(){
+    var h = '<div class="opts">' +
+      optRadio("base.eosKnown","sim","Sim, tenho o resultado do hemograma","Informar a contagem absoluta em células/µL") +
+      optRadio("base.eosKnown","nao","Não disponível no momento","A decisão sobre ICS será postergada e o exame, solicitado") +
+      '</div>';
+    if(S.base.eosKnown === "sim"){
+      h += '<div style="margin-top:18px">' + campoNum("base.eos","Eosinófilos","células/µL","Ex.: 280") + '</div>';
+      var e = num(S.base.eos);
+      if(e!=null){
+        var faixa = e>=300 ? ["danger","≥ 300 · maior probabilidade de resposta ao ICS"] :
+                    (e>=100 ? ["warn","100–299 · resposta intermediária"] : ["ok","&lt; 100 · resposta improvável ao ICS"]);
+        h += '<div class="calc"><span class="k">Faixa</span><span class="v">' + e + '</span><span class="u">células/µL</span>' +
+             '<span class="tag ' + faixa[0] + '" style="margin-left:auto">' + faixa[1] + '</span></div>';
+      }
+    }
+    h += '<div class="note" style="margin-top:16px">O valor só modifica a conduta inicial no <b>Grupo E</b> (≥ 300 células/µL → considerar terapia tripla). Em A e B, o tratamento inicial não inclui ICS. O dado também será reaproveitado na Etapa 7.</div>';
+    return h;
+  },
+  valid:function(){
+    if(!S.base.eosKnown) return "Informe se a contagem de eosinófilos está disponível.";
+    if(S.base.eosKnown === "sim" && num(S.base.eos)==null) return "Informe a contagem em células/µL.";
+    return true;
+  }
+};
+T.plano = {
+  step:4, wide:true, titulo:"Tratamento inicial", proximo:"Definir acompanhamento",
+  render:function(){
+    var c = classificacao(), r = tratamentoInicial(c);
+    var esq = dl([
+      ["Paciente", esc(S.paciente.nome)],
+      ["Classificação", c.rotulo],
+      ["CAT / mMRC", c.cat + " · grau " + c.mmrc],
+      ["VEF₁ pós-BD", n1(c.fev1) + "%"],
+      ["Exacerbações (12 m)", c.exMod + " mod. · " + c.exSev + " grave(s)"],
+      ["Eosinófilos", r.eos==null ? "não disponível" : r.eos + " células/µL"]
+    ]);
+    var lado = '<div>' + painel("Dados do paciente", esq, true) +
+      '<div style="margin-top:16px">' + painel("Tabela GOLD — tratamento inicial",
+        '<ul class="rx" style="font-size:13.5px">' +
+        ['<li><span class="bullet' + (c.grupo==="A"?'':' muted') + '"></span><span><b>Grupo A</b> — um broncodilatador de longa ação (LABA ou LAMA)</span></li>',
+         '<li><span class="bullet' + (c.grupo==="B"?'':' muted') + '"></span><span><b>Grupo B</b> — LABA + LAMA</span></li>',
+         '<li><span class="bullet' + (c.grupo==="E"?'':' muted') + '"></span><span><b>Grupo E</b> — LABA + LAMA; considerar LABA + LAMA + ICS se eosinófilos ≥ 300 células/µL</span></li>'].join("") +
+        '</ul>') + '</div></div>';
+
+    var vered = '<div class="verdict"><div class="big">' + r.esquema + '</div>' +
+      '<div class="sub">Esquema inicial sugerido para <b>Grupo ' + c.grupo + '</b> — ' + GRUPO_TXT[c.grupo].crit + '.</div>' +
+      '<div class="tags"><span class="tag accent">' + c.rotulo + '</span>' +
+      (r.eos!=null ? '<span class="tag ' + (r.eos>=300?"danger":"") + '">Eos ' + r.eos + '/µL</span>' : '<span class="tag warn">Eosinófilos pendentes</span>') +
+      '</div></div>';
+
+    var farmaco = '<div style="padding:0 18px 4px"><div class="sect-label">Farmacoterapia</div>' + listaRx(r.itens) + '</div>';
+    var naoFarma = '<div style="padding:0 18px 18px"><div class="sect-label">Em todos os grupos — sempre</div>' +
+      listaRx(NAO_FARMA.map(function(x){ return ['<b>' + x[0] + '.</b> ' + x[1], 1]; })) + '</div>';
+
+    var dir = painel("Conduta", vered + farmaco + naoFarma, true);
+    var obs = r.obs.length ? '<div class="note accent" style="margin-top:16px">' + r.obs.join(" ") + '</div>' : "";
+    var rodape = '<div class="note" style="margin-top:16px">Registrar em prontuário o dispositivo escolhido, a demonstração da técnica e a data da reavaliação. Toda mudança de esquema deve ser reavaliada em <b>4 semanas</b>.</div>';
+
+    return '<div class="result-grid">' + lado + '<div>' + dir + obs + rodape + '</div></div>';
+  },
+  commit:function(){
+    var c = classificacao(), r = tratamentoInicial(c);
+    S.tx.recomendado = r.classe;
+    if(!S.tx.atual) S.tx.atual = r.classe;
+    S.feitas[4] = true;
+    registrarVisita({
+      tipo:"inicial", titulo:"Consulta inicial", cat:c.cat, mmrc:c.mmrc,
+      exMod:c.exMod, exSev:c.exSev, grau:c.grau, grupo:c.grupo,
+      tx:r.classe, esquema:r.esquema
+    });
+  }
+};
+
+/* ---------- ETAPA 5 — reavaliação ---------- */
+function reInit(){
+  if(!S.re){
+    S.re = { data:hoje(), mmrc:null, cat:[null,null,null,null,null,null,null,null],
+             exMod:"", exSev:"", tx:(S.tx.atual||S.tx.recomendado||null), adesao:null, tecnica:null,
+             eosKnown:null, eos:"", bronqCronica:null, fumo:S.paciente.fumo };
+    save();
+  }
+  return S.re;
+}
+T.reMmrc = {
+  step:5, auto:true, titulo:"Reavaliação — escala mMRC",
+  ajuda:function(){
+    var r = referencia();
+    return "Reaplique a escala nesta consulta. Valor da avaliação anterior: <b>grau " + (r.mmrc==null?"—":r.mmrc) + "</b>" + (r.data ? " (" + dataBR(r.data) + ")" : "") + ".";
+  },
+  render:function(){
+    reInit();
+    return '<div class="opts">' + MMRC.map(function(m){ return optRadio("re.mmrc", m.g, m.t, m.d); }).join("") + '</div>';
+  },
+  valid:function(){ return S.re.mmrc!=null ? true : "Selecione um grau da escala mMRC."; }
+};
+for(var cj=0; cj<8; cj++){
+  (function(i){
+    T["reCat"+i] = {
+      step:5, auto:true,
+      titulo:"Reavaliação — CAT " + (i+1) + " de 8: " + CAT[i].k,
+      ajuda:"Reaplicar o questionário completo permite comparar o total com a consulta anterior (queda ≥ 2 pontos = melhora clinicamente relevante).",
+      render:function(){
+        reInit();
+        var h = '<div class="scale-anchors"><span><b>0</b> · ' + CAT[i].a + '</span><span><b>5</b> · ' + CAT[i].b + '</span></div>';
+        h += escala05("re.cat." + i);
+        var parcial = 0, n = 0;
+        for(var j=0;j<8;j++) if(S.re.cat[j]!=null){ parcial += S.re.cat[j]; n++; }
+        var ref = referencia();
+        h += '<div class="calc"><span class="k">Parcial (' + n + '/8 itens)</span><span class="v">' + parcial + '</span><span class="u">de 40</span>' +
+             '<span class="u" style="margin-left:auto">CAT anterior: <b>' + (ref.cat==null?"—":ref.cat) + '</b></span></div>';
+        return h;
+      },
+      valid:function(){ return S.re.cat[i]!=null ? true : "Selecione um valor de 0 a 5."; }
+    };
+  })(cj);
+}
+T.reExac = {
+  step:5, titulo:"Exacerbações desde a última consulta",
+  ajuda:"Mesmo critério da avaliação inicial: piora aguda dos sintomas com aumento do volume e/ou da purulência do escarro, exigindo mudança de tratamento.",
+  render:function(){
+    reInit();
+    var h = '<div class="inline-2">' +
+      campoNum("re.exMod","Moderadas","eventos","0","Corticoide oral e/ou antibiótico, sem internação.") +
+      campoNum("re.exSev","Graves","eventos","0","Emergência ou hospitalização.") + '</div>';
+    var m = num(S.re.exMod)||0, s = num(S.re.exSev)||0;
+    if(m+s>0) h += '<div class="note danger" style="margin-top:14px">' + plural(m+s,"exacerbação registrada","exacerbações registradas") + ' no intervalo. Qualquer exacerbação sob tratamento caracteriza <b>resposta inadequada na dimensão risco</b> e direciona a Etapa 7 para o braço de exacerbações.</div>';
+    return h;
+  },
+  valid:function(){
+    if(num(S.re.exMod)==null || num(S.re.exSev)==null) return "Informe os dois valores (use 0 quando não houver).";
+    return true;
+  }
+};
+T.reTx = {
+  step:5, titulo:"Tratamento em uso no momento",
+  ajuda:"O ponto de partida na árvore de decisão do seguimento é o esquema que o paciente <i>de fato</i> vem usando.",
+  render:function(){
+    reInit();
+    var h = '<div class="opts">' +
+      optRadio("re.tx","mono","Monoterapia broncodilatadora","Um único broncodilatador de longa ação (LABA ou LAMA)") +
+      optRadio("re.tx","dual","LABA + LAMA","Dupla broncodilatação, em um ou dois dispositivos") +
+      optRadio("re.tx","triple","LABA + LAMA + ICS","Terapia tripla") +
+      optRadio("re.tx","outro","Outro / nenhum broncodilatador de longa ação","Apenas SABA/SAMA por demanda, ou esquema fora do padrão") +
+      '</div>';
+    if(S.tx.recomendado) h += '<div class="note" style="margin-top:16px">Esquema registrado na última decisão desta ferramenta: <b>' + TX_NOME[S.tx.recomendado] + '</b>. Corrija acima se o que está em uso for diferente.</div>';
+    return h;
+  },
+  valid:function(){ return S.re.tx ? true : "Informe o esquema em uso."; }
+};
+T.reAdesao = {
+  step:5, titulo:"Adesão e técnica inalatória",
+  ajuda:"Erro de técnica e adesão irregular explicam a maior parte das falhas terapêuticas — precisam ser verificados antes de qualquer escalonamento.",
+  render:function(){
+    reInit();
+    var h = '<div class="field"><label>Adesão relatada / verificada</label><div class="opts">' +
+      optRadio("re.adesao","boa","Adequada","Uso regular, conforme prescrito") +
+      optRadio("re.adesao","parcial","Parcial","Esquecimentos frequentes ou uso apenas quando sintomático") +
+      optRadio("re.adesao","ruim","Irregular ou interrompida","Uso esporádico, abandono, falta de acesso à medicação") +
+      '</div></div>';
+    h += '<div class="field" style="margin-top:20px"><label>Técnica inalatória (demonstrada pelo paciente nesta consulta)</label><div class="opts">' +
+      optRadio("re.tecnica","adequada","Adequada","Executa corretamente todas as etapas do dispositivo") +
+      optRadio("re.tecnica","inadequada","Inadequada","Erros críticos: coordenação, fluxo inspiratório, ausência de apneia pós-inalação, dispositivo vazio") +
+      optRadio("re.tecnica","nao","Não avaliada nesta consulta","Registrar e verificar antes de qualquer mudança de esquema") +
+      '</div></div>';
+    h += '<div class="field" style="margin-top:20px"><label>Situação atual do tabagismo</label><div class="opts">' +
+      optRadio("re.fumo","fumante","Fumante ativo","") +
+      optRadio("re.fumo","ex","Ex-fumante","") +
+      optRadio("re.fumo","nunca","Nunca fumou","") +
+      '</div></div>';
+    return h;
+  },
+  valid:function(){
+    if(!S.re.adesao) return "Registre a adesão.";
+    if(!S.re.tecnica) return "Registre a técnica inalatória.";
+    if(!S.re.fumo) return "Registre a situação de tabagismo.";
+    return true;
+  },
+  commit:function(){ S.paciente.fumo = S.re.fumo; S.feitas[5] = true; save(); }
+};
+
+/* ---------- ETAPA 6 — resposta ao tratamento ---------- */
+T.resposta = {
+  step:6, wide:true, titulo:"Resposta ao tratamento", proximo:"Definir ajuste terapêutico",
+  render:function(){
+    var a = avaliaResposta();
+    var ref = a.ref;
+
+    var tabela = '<table class="cmp"><thead><tr><th>Parâmetro</th><th class="num">Anterior' + (ref.data ? '<br><span style="font-weight:400;text-transform:none;letter-spacing:0">' + dataBR(ref.data) + '</span>' : '') + '</th><th class="num">Atual<br><span style="font-weight:400;text-transform:none;letter-spacing:0">' + dataBR(S.re.data) + '</span></th><th class="num">Δ</th></tr></thead><tbody>' +
+      '<tr><td class="k">CAT total</td><td class="num">' + (ref.cat==null?"—":ref.cat) + '</td><td class="num">' + (a.catNovo==null?"—":a.catNovo) + '</td><td class="num">' + deltaTxt(a.dCat) + '</td></tr>' +
+      '<tr><td class="k">mMRC</td><td class="num">' + (ref.mmrc==null?"—":ref.mmrc) + '</td><td class="num">' + (a.mmrcNovo==null?"—":a.mmrcNovo) + '</td><td class="num">' + deltaTxt(a.dMmrc) + '</td></tr>' +
+      '<tr><td class="k">Exacerbações moderadas</td><td class="num">—</td><td class="num">' + a.exMod + '</td><td class="num">' + (a.exMod>0?'<span class="delta up">+' + a.exMod + '</span>':'<span class="delta flat">0</span>') + '</td></tr>' +
+      '<tr><td class="k">Exacerbações graves</td><td class="num">—</td><td class="num">' + a.exSev + '</td><td class="num">' + (a.exSev>0?'<span class="delta up">+' + a.exSev + '</span>':'<span class="delta flat">0</span>') + '</td></tr>' +
+      '<tr><td class="k">Esquema em uso</td><td class="num" style="font-size:12.5px">' + (ref.tx?esc(TX_NOME[ref.tx].split("(")[0].trim()):"—") + '</td><td class="num" style="font-size:12.5px">' + esc(TX_NOME[a.tx].split("(")[0].trim()) + '</td><td class="num">—</td></tr>' +
+      '</tbody></table>';
+
+    var dims =
+      '<div class="dim ' + (a.dispneiaRuim?"bad":"good") + '"><span class="st">' + (a.dispneiaRuim?"!":"✓") + '</span><div>' +
+      '<h4>Dispneia / sintomas — resposta ' + (a.dispneiaRuim?"inadequada":"adequada") + '</h4><p>' + a.motivoDisp + '</p></div></div>' +
+      '<div class="dim ' + (a.exacRuim?"bad":"good") + '"><span class="st">' + (a.exacRuim?"!":"✓") + '</span><div>' +
+      '<h4>Exacerbações — resposta ' + (a.exacRuim?"inadequada":"adequada") + '</h4><p>' + a.motivoExac + '</p></div></div>';
+
+    var ramoTxt = a.ramo === "estavel"
+      ? "Resposta adequada nas duas dimensões: manter o esquema e o plano de acompanhamento."
+      : (a.ramo === "dispneia"
+        ? "Problema predominante: <b>dispneia persistente</b>. A Etapa 7 seguirá o braço de sintomas."
+        : (a.ambos ? "Ambas as dimensões inadequadas. Pelo algoritmo GOLD, seguir o <b>braço de exacerbações</b>, que já contempla a broncodilatação máxima do braço de dispneia."
+                   : "Problema predominante: <b>exacerbações persistentes</b>. A Etapa 7 seguirá o braço de risco."));
+
+    var alertas = "";
+    if(a.tecnica === "inadequada") alertas += '<div class="note danger" style="margin-top:12px"><b>Técnica inalatória inadequada.</b> Corrigir e reavaliar antes de atribuir a falha ao esquema farmacológico.</div>';
+    if(a.tecnica === "nao") alertas += '<div class="note warn" style="margin-top:12px">Técnica inalatória <b>não verificada</b> nesta consulta — verificar antes de qualquer escalonamento.</div>';
+    if(a.adesao === "ruim" || a.adesao === "parcial") alertas += '<div class="note warn" style="margin-top:12px"><b>Adesão ' + (a.adesao==="ruim"?"irregular":"parcial") + '.</b> Falha de adesão simula falha terapêutica: investigar causa e simplificar o esquema antes de escalonar.</div>';
+
+    var esq = '<div>' + painel("Comparação com a consulta anterior", tabela, true) +
+      '<div class="note" style="margin-top:14px">A diferença mínima clinicamente importante do CAT é de <b>' + DMCI_CAT + ' pontos</b>; variações menores não são consideradas melhora.</div></div>';
+
+    var dir = painel("Dimensões avaliadas", dims + '<div class="note accent" style="margin-top:14px">' + ramoTxt + '</div>' + alertas);
+
+    return '<div class="result-grid">' + esq + dir + '</div>';
+  },
+  commit:function(){ S.feitas[6] = true; save(); }
+};
+
+/* ---------- ETAPA 7 — ajuste ---------- */
+T.extras = {
+  step:7, titulo:"Dados complementares para a decisão",
+  ajuda:"Estes dados definem, no braço de exacerbações, a escolha entre corticoide inalatório, roflumilaste e azitromicina.",
+  pular:function(){ return !precisaExtras(avaliaResposta()); },
+  render:function(){
+    reInit();
+    var h = '<div class="field"><label>Contagem de eosinófilos no sangue atualizada</label><div class="opts">' +
+      optRadio("re.eosKnown","sim","Sim, tenho o resultado","") +
+      optRadio("re.eosKnown","nao","Não disponível","") + '</div>';
+    if(S.re.eosKnown === "sim"){
+      h += '<div style="margin-top:14px">' + campoNum("re.eos","Eosinófilos","células/µL","Ex.: 320") + '</div>';
+    } else if(S.re.eosKnown === "nao" && S.base.eosKnown === "sim"){
+      h += '<div class="note" style="margin-top:12px">Será usado o valor da avaliação inicial: <b>' + esc(S.base.eos) + ' células/µL</b>.</div>';
+    }
+    h += '</div>';
+    h += '<div class="field" style="margin-top:20px"><label>Bronquite crônica (tosse produtiva na maior parte dos dias, ≥ 3 meses/ano, por 2 anos consecutivos)</label><div class="opts">' +
+      optRadio("re.bronqCronica","sim","Sim","") +
+      optRadio("re.bronqCronica","nao","Não","") + '</div>' +
+      '<div class="sub">Critério necessário, junto de VEF₁ &lt; 50%, para indicar roflumilaste.</div></div>';
+    return h;
+  },
+  valid:function(){
+    if(!S.re.eosKnown) return "Informe se a contagem de eosinófilos está disponível.";
+    if(S.re.eosKnown === "sim" && num(S.re.eos)==null) return "Informe a contagem em células/µL.";
+    if(!S.re.bronqCronica) return "Informe se há bronquite crônica.";
+    return true;
+  }
+};
+T.ajuste = {
+  step:7, wide:true, titulo:"Ajuste do tratamento", proximo:"Definir acompanhamento",
+  render:function(){
+    var p = planoAjuste(), a = p.a, c = classificacao();
+    var ramoNome = p.ramo === "estavel" ? "Manutenção" : (p.ramo === "dispneia" ? "Braço: dispneia" : "Braço: exacerbações");
+
+    var esq = painel("Situação", dl([
+      ["Paciente", esc(S.paciente.nome)],
+      ["Classificação basal", c.rotulo],
+      ["Esquema em uso", TX_NOME[p.txAtual].split("(")[0].trim()],
+      ["CAT (ant. → atual)", (a.ref.cat==null?"—":a.ref.cat) + " → " + (a.catNovo==null?"—":a.catNovo)],
+      ["mMRC (ant. → atual)", (a.ref.mmrc==null?"—":a.ref.mmrc) + " → " + (a.mmrcNovo==null?"—":a.mmrcNovo)],
+      ["Exacerbações no intervalo", a.exMod + " mod. · " + a.exSev + " grave(s)"],
+      ["Eosinófilos", p.eos==null ? "não disponível" : p.eos + " células/µL"],
+      ["VEF₁ pós-BD", c.fev1==null ? "—" : n1(c.fev1) + "%"]
+    ]), true);
+
+    var antes = painel("Antes de escalonar — sempre",
+      listaRx(p.antes.map(function(x){ return ['<b>' + x[0] + ".</b> " + x[1], 1]; })));
+
+    var vered = '<div class="verdict"><div class="big">' + (p.novoEsquema===p.txAtual && p.ramo!=="estavel" ? "Manter " + TX_NOME[p.novoEsquema].split("(")[0].trim() : TX_NOME[p.novoEsquema]) + '</div>' +
+      '<div class="sub">' + (p.ramo==="estavel" ? "Resposta adequada — sem indicação de mudança farmacológica." :
+        "Conduta derivada do algoritmo de seguimento do GOLD a partir do problema predominante.") + '</div>' +
+      '<div class="tags"><span class="tag ' + (p.ramo==="estavel"?"ok":(p.ramo==="exacerbacao"?"danger":"warn")) + '">' + ramoNome + '</span>' +
+      '<span class="tag">De: ' + TX_NOME[p.txAtual].split("(")[0].trim() + '</span>' +
+      (p.novoEsquema!==p.txAtual ? '<span class="tag accent">Para: ' + TX_NOME[p.novoEsquema].split("(")[0].trim() + '</span>' : '') +
+      '</div></div>';
+
+    var alerta = p.alertas.length ? '<div style="padding:0 18px 6px"><div class="note warn">' + p.alertas.join(" ") + '</div></div>' : "";
+    var acoes = '<div style="padding:0 18px 18px"><div class="sect-label">Conduta</div>' + listaRx(p.acoes) + '</div>';
+    var dir = painel("Decisão terapêutica", vered + alerta + acoes, true);
+
+    var rodape = '<div class="note" style="margin-top:16px">Toda mudança de esquema exige <b>reavaliação em 4 semanas</b> com CAT e mMRC. Se não houver benefício, o passo é <b>voltar ao esquema anterior</b> — escalonar sem reavaliar é o erro mais comum do seguimento.</div>';
+
+    return '<div class="result-grid">' + '<div>' + esq + '<div style="margin-top:16px">' + antes + '</div></div>' +
+      '<div>' + dir + rodape + '</div></div>';
+  },
+  commit:function(){
+    var p = planoAjuste(), c = classificacao();
+    S.tx.atual = p.novoEsquema;
+    S.tx.recomendado = p.novoEsquema;
+    S.feitas[7] = true;
+    registrarVisita({
+      tipo:"retorno", titulo:"Consulta de retorno", cat:p.a.catNovo, mmrc:p.a.mmrcNovo,
+      exMod:p.a.exMod, exSev:p.a.exSev, grau:c.grau, grupo:c.grupo,
+      tx:p.novoEsquema, esquema:TX_NOME[p.novoEsquema]
+    });
+  }
+};
+
+/* ---------- ETAPA 8 — exacerbação aguda ---------- */
+function exacInit(){
+  if(!S.exac){ S.exac = { data:hoje(), sinais:{}, cardinais:{}, intensidade:null }; save(); }
+  return S.exac;
+}
+T.exGrav = {
+  step:8, titulo:"Exacerbação aguda — sinais de gravidade",
+  ajuda:"Marque todos os achados presentes. Qualquer um deles caracteriza exacerbação grave e indica atendimento hospitalar.",
+  render:function(){
+    exacInit();
+    var h = '<div class="opts">' + SINAIS_GRAVES.map(function(s){
+      return optCheck("exac.sinais." + s[0], s[1], "");
+    }).join("") + '</div>';
+    var n = SINAIS_GRAVES.filter(function(s){ return S.exac.sinais[s[0]]; }).length;
+    if(n) h += '<div class="note danger" style="margin-top:16px"><b>' + plural(n,"sinal de gravidade presente","sinais de gravidade presentes") + '.</b> Encaminhar imediatamente para avaliação em serviço de emergência.</div>';
+    else h += '<div class="note" style="margin-top:16px">Nenhum sinal marcado: prosseguir para a caracterização dos sintomas cardinais. Se nada se aplica, apenas avance.</div>';
+    return h;
+  },
+  valid:function(){ return true; }
+};
+T.exCard = {
+  step:8, titulo:"Sintomas cardinais de Anthonisen",
+  ajuda:"São eles que definem a indicação de antibiótico na exacerbação.",
+  render:function(){
+    exacInit();
+    var h = '<div class="opts">' + CARDINAIS.map(function(c){
+      return optCheck("exac.cardinais." + c[0], c[1], "");
+    }).join("") + '</div>';
+    var p = planoExacerbacao();
+    h += '<div class="note ' + (p.atb ? "warn" : "") + '" style="margin-top:16px">' +
+      (p.atb3 ? '<b>Os três sintomas cardinais presentes</b> — antibiótico indicado.'
+        : (p.atb ? '<b>Aumento de purulência associado a aumento de volume e/ou da dispneia</b> — antibiótico indicado.'
+        : 'Antibiótico está indicado quando há <b>aumento da purulência</b> do escarro associado a <b>aumento do volume</b> e/ou <b>piora da dispneia</b>, ou quando os três sintomas estão presentes, ou ainda quando há necessidade de ventilação mecânica.')) + '</div>';
+    return h;
+  },
+  valid:function(){ return true; }
+};
+T.exInt = {
+  step:8, titulo:"Intensidade da descompensação",
+  ajuda:"Diferencia a exacerbação leve (resolvida com ajuste do broncodilatador de curta ação) da moderada (exige corticoide oral e/ou antibiótico).",
+  render:function(){
+    exacInit();
+    var p0 = planoExacerbacao();
+    var h = "";
+    if(p0.graves.length){
+      h += '<div class="note danger" style="margin-bottom:16px">Já há sinais de gravidade marcados na tela anterior: a exacerbação é <b>grave</b> independentemente desta resposta.</div>';
+    }
+    h += '<div class="opts">' +
+      optRadio("exac.intensidade","nao","Leve — controlada com broncodilatador de curta ação","Piora discreta, sem repercussão funcional importante; responde ao aumento da frequência do SABA/SAMA") +
+      optRadio("exac.intensidade","sim","Moderada — exige mais que o broncodilatador de curta ação","Dispneia limitante, queda funcional, necessidade de corticoide oral e/ou antibiótico, sem critérios de internação") +
+      '</div>';
+    return h;
+  },
+  valid:function(){ return S.exac.intensidade ? true : "Selecione a intensidade da descompensação."; }
+};
+T.exPlano = {
+  step:8, wide:true, titulo:"Conduta na exacerbação", proximo:"Concluir",
+  render:function(){
+    var p = planoExacerbacao();
+    var rot = p.grav === "grave" ? "Exacerbação grave" : (p.grav === "moderada" ? "Exacerbação moderada" : "Exacerbação leve");
+    var tagCls = p.grav === "grave" ? "danger" : (p.grav === "moderada" ? "warn" : "ok");
+
+    var esq = '<div>' + painel("Achados", dl([
+      ["Paciente", esc(S.paciente.nome || "—")],
+      ["Data", dataBR(S.exac.data)],
+      ["Sinais de gravidade", p.graves.length ? p.graves.length + " presente(s)" : "nenhum"],
+      ["Sintomas cardinais", p.nCard + " de 3"],
+      ["Purulência aumentada", p.pur ? "sim" : "não"],
+      ["Volume do escarro", p.vol ? "aumentado" : "sem aumento"],
+      ["Dispneia", p.disp ? "aumentada" : "sem aumento"],
+      ["VEF₁ basal", p.fev1==null ? "—" : n1(p.fev1) + "%"]
+    ]), true);
+    if(p.graves.length){
+      esq += '<div style="margin-top:16px">' + painel("Sinais presentes",
+        listaRx(p.graves.map(function(g){ return [g[1], 1]; }))) + '</div>';
+    }
+    esq += '</div>';
+
+    var cond = [];
+    cond.push(["<b>Broncodilatador de curta ação</b> — SABA (salbutamol/fenoterol) isolado ou associado a SAMA (ipratrópio), aumentando dose e frequência. É a base do tratamento em qualquer gravidade.",1]);
+    if(p.cort) cond.push(["<b>Corticoide oral</b> — prednisona 40 mg/dia (ou prednisolona equivalente) por <b>5 dias</b>. Curso curto, sem necessidade de desmame e <b>sem uso crônico</b>: acelera a recuperação do VEF₁, reduz falha terapêutica e tempo de internação.",1]);
+    else cond.push(["Corticoide oral <b>não indicado</b> em exacerbação leve.",0]);
+    if(p.atb) cond.push(["<b>Antibiótico</b> por 5 a 7 dias — critério de Anthonisen preenchido. Escolha guiada pelo perfil local: amoxicilina-clavulanato, macrolídeo ou tetraciclina em quadros não complicados; cobrir <i>Pseudomonas</i> se uso recente de antibiótico, VEF₁ muito reduzido, bronquiectasias ou isolamento prévio.",1]);
+    else cond.push(["Antibiótico <b>não indicado</b> pelos critérios atuais (exige purulência aumentada associada a aumento de volume e/ou de dispneia, ou os três sintomas cardinais, ou necessidade de ventilação mecânica).",0]);
+    cond.push(["Manter a terapia inalatória de longa duração; <b>não</b> suspender LABA/LAMA/ICS durante a exacerbação.",1]);
+    cond.push(["Rever a técnica inalatória e considerar espaçador; oxigenoterapia com alvo de SpO₂ <b>88–92%</b> quando houver hipoxemia.",1]);
+    if(p.grav === "grave"){
+      cond.push(["<b>Encaminhar para emergência/hospital.</b> Avaliar gasometria arterial e radiografia de tórax; considerar <b>ventilação não invasiva</b> na acidose respiratória (pH ≤ 7,35 com PaCO₂ ≥ 45 mmHg), dispneia grave com fadiga muscular ou hipoxemia persistente.",1]);
+      cond.push(["Investigar diagnósticos que simulam ou acompanham a exacerbação: pneumonia, tromboembolismo pulmonar, insuficiência cardíaca descompensada, pneumotórax e arritmias.",1]);
+    }
+
+    var quandoInternar = ["Sintomas graves em repouso, frequência respiratória elevada, uso de musculatura acessória, confusão ou cianose",
+      "Insuficiência respiratória aguda ou hipoxemia/hipercapnia novas",
+      "Falha da resposta ao tratamento inicial ambulatorial",
+      "Comorbidade grave descompensada (insuficiência cardíaca, arritmia, diabetes descompensado)",
+      "Suporte domiciliar insuficiente ou impossibilidade de retorno em 48–72 h"];
+
+    var vered = '<div class="verdict"><div class="big">' + rot + '</div>' +
+      '<div class="sub">' + (p.grav==="grave" ? "Necessita avaliação em serviço de emergência / hospitalização."
+        : (p.grav==="moderada" ? "Manejo ambulatorial com corticoide oral e/ou antibiótico, com reavaliação próxima."
+        : "Manejo ambulatorial apenas com ajuste do broncodilatador de curta ação.")) + '</div>' +
+      '<div class="tags"><span class="tag ' + tagCls + '">' + rot + '</span>' +
+      (p.atb ? '<span class="tag warn">Antibiótico indicado</span>' : '<span class="tag">Sem antibiótico</span>') +
+      (p.cort ? '<span class="tag warn">Corticoide oral 5 dias</span>' : '<span class="tag">Sem corticoide oral</span>') +
+      '</div></div>';
+
+    var dir = painel("Conduta", vered + '<div style="padding:0 18px 18px">' + listaRx(cond) +
+      '<div class="sect-label">Quando encaminhar/hospitalizar</div>' +
+      listaRx(quandoInternar.map(function(x){ return [x, p.grav==="grave"?1:0]; })) +
+      '<div class="sect-label">Depois do evento</div>' +
+      listaRx([
+        ["Reavaliar em <b>4 semanas</b> (ou em 48–72 h se manejo ambulatorial de quadro moderado): sintomas, técnica inalatória, adesão e necessidade de ajuste da terapia de manutenção.",1],
+        ["Toda exacerbação <b>reclassifica o risco</b>: ≥ 2 moderadas ou ≥ 1 com hospitalização em 12 meses colocam o paciente no <b>Grupo E</b>.",1],
+        ["Indicar reabilitação pulmonar após hospitalização e reforçar cessação do tabagismo e vacinação.",1],
+        ["Entregar <b>plano de ação escrito</b> para reconhecimento precoce do próximo evento.",1]
+      ]) + '</div>', true);
+
+    return '<div class="result-grid">' + esq + dir + '</div>';
+  },
+  commit:function(){ S.feitas[8] = true; save(); }
+};
+
+/* ---------- ETAPA 9 — acompanhamento ---------- */
+T.fupPrazo = {
+  step:9, titulo:"Prazo de retorno",
+  ajuda:"Toda mudança de tratamento exige reavaliação precoce; pacientes estáveis podem ser reavaliados em intervalos maiores.",
+  render:function(){
+    var mudou = houveMudanca();
+    var h = "";
+    if(mudou) h += '<div class="note accent" style="margin-bottom:16px">Houve <b>mudança de esquema</b> nesta consulta — o intervalo sugerido é de <b>4 semanas</b>.</div>';
+    h += '<div class="opts">' +
+      optRadio("fup.prazo","4s","4 semanas", "Padrão após qualquer mudança de tratamento ou após exacerbação" + (mudou ? " · sugerido" : "")) +
+      optRadio("fup.prazo","3m","3 meses","Paciente estável, com fatores de risco ativos ou comorbidades relevantes") +
+      optRadio("fup.prazo","6m","6 meses","Paciente estável, sem exacerbações e com sintomas controlados" + (!mudou ? " · sugerido" : "")) +
+      optRadio("fup.prazo","antes","Retorno antecipado / individualizado","Situação instável, exacerbação recente ou necessidade de exames intermediários") +
+      '</div>';
+    h += '<div class="note" style="margin-top:16px">Independentemente do intervalo, orientar retorno imediato diante de piora aguda dos sintomas com alteração do escarro — e entregar plano de ação escrito.</div>';
+    return h;
+  },
+  valid:function(){ return S.fup.prazo ? true : "Defina o prazo de retorno."; }
+};
+T.fupCheck = {
+  step:9, titulo:"Checklist do próximo retorno",
+  ajuda:"Marque os itens já revisados hoje; os não marcados permanecem como pendências para a próxima consulta.",
+  render:function(){
+    return '<div class="checklist">' + CHECKLIST.map(function(c){
+      var on = !!S.fup.check[c[0]];
+      return '<button type="button" class="chk' + (on?' on':'') + '" data-chk="' + c[0] + '">' +
+        '<span class="box"></span><span class="t">' + c[1] + '<small>' + c[2] + '</small></span></button>';
+    }).join("") + '</div>';
+  },
+  valid:function(){ return true; }
+};
+T.fupFim = {
+  step:9, wide:true, titulo:"Plano de acompanhamento", semNav:true,
+  render:function(){
+    var c = classificacao();
+    var v = ultimaVisita();
+    var prazoTxt = {"4s":"4 semanas","3m":"3 meses","6m":"6 meses","antes":"retorno antecipado / individualizado"}[S.fup.prazo] || "—";
+    var esquema = v ? v.esquema : (S.tx.recomendado ? TX_NOME[S.tx.recomendado] : "—");
+
+    var esq = painel("Registro da consulta", dl([
+      ["Paciente", esc(S.paciente.nome)],
+      ["Idade", (num(S.paciente.idade)!=null ? num(S.paciente.idade) + " anos" : "—")],
+      ["Data", dataBR(v ? v.data : hoje())],
+      ["Classificação", c.rotulo],
+      ["CAT / mMRC", (v && v.cat!=null ? v.cat : (c.cat==null?"—":c.cat)) + " · grau " + (v && v.mmrc!=null ? v.mmrc : (c.mmrc==null?"—":c.mmrc))],
+      ["VEF₁ pós-BD", c.fev1==null?"—":n1(c.fev1) + "%"],
+      ["Esquema definido", esquema],
+      ["Retorno", prazoTxt]
+    ]), true);
+
+    var pend = CHECKLIST.filter(function(x){ return !S.fup.check[x[0]]; });
+    var feitos = CHECKLIST.filter(function(x){ return !!S.fup.check[x[0]]; });
+
+    var dir = painel("Plano",
+      '<div class="verdict" style="padding:0 0 16px"><div class="big">Retorno em ' + prazoTxt + '</div>' +
+      '<div class="sub">Esquema em uso: <b>' + esc(esquema) + '</b>.</div>' +
+      '<div class="tags"><span class="tag accent">' + c.rotulo + '</span><span class="tag">' + feitos.length + '/' + CHECKLIST.length + ' itens revisados</span></div></div>' +
+      (pend.length ? '<div class="sect-label">Pendências para o próximo retorno</div>' + listaRx(pend.map(function(x){ return ['<b>' + x[1] + '.</b> ' + x[2], 1]; })) : '<div class="note ok">Todos os itens do checklist foram revisados nesta consulta.</div>') +
+      (feitos.length ? '<div class="sect-label">Revisados hoje</div>' + listaRx(feitos.map(function(x){ return [x[1], 0]; })) : ""));
+
+    var acoes = '<div class="navbar no-print">' +
+      '<button class="btn btn-secondary" data-act="voltar">Voltar</button>' +
+      '<div class="right">' +
+      '<button class="btn btn-quiet" data-act="imprimir">Imprimir / PDF</button>' +
+      '<button class="btn btn-secondary" data-go="home">Início</button>' +
+      '<button class="btn btn-primary" data-go="retorno">Registrar retorno</button>' +
+      '</div></div>';
+
+    var nota = '<div class="note" style="margin-top:16px">"Registrar retorno" abre a <b>Etapa 5</b> com os dados deste paciente já carregados, para a próxima reavaliação.</div>';
+
+    return '<div class="result-grid">' + esq + '<div>' + dir + nota + '</div></div>' + acoes;
+  },
+  commit:function(){
+    if(S.visitas.length){
+      var v = S.visitas[S.visitas.length-1];
+      v.prazo = S.fup.prazo;
+      v.check = JSON.parse(JSON.stringify(S.fup.check));
+    }
+    S.feitas[9] = true; save();
+  }
+};
+
+/* ============================================================
+   7. FLUXOS E MOTOR DO WIZARD
+   ============================================================ */
+var FLOW = {
+  home:   ["home"],
+  inicial:["nome","idade","fumo","mmrc","cat0","cat1","cat2","cat3","cat4","cat5","cat6","cat7",
+           "fev1","exac","classif","objetivos","eos","plano","fupPrazo","fupCheck","fupFim"],
+  reaval: ["reMmrc","reCat0","reCat1","reCat2","reCat3","reCat4","reCat5","reCat6","reCat7",
+           "reExac","reTx","reAdesao","resposta","extras","ajuste","fupPrazo","fupCheck","fupFim"],
+  exacerb:["exGrav","exCard","exInt","exPlano"]
+};
+var ETAPAS = [
+  [1,"Avaliação inicial"],[2,"Classificação"],[3,"Objetivos"],[4,"Tratamento inicial"],
+  [5,"Reavaliação"],[6,"Resposta"],[7,"Ajuste"],[8,"Exacerbação"],[9,"Acompanhamento"]
+];
+
+function flow(){ return FLOW[S.nav.modo] || FLOW.home; }
+function tela(){ return T[flow()[S.nav.idx]] || T.home; }
+
+function registrarVisita(d){
+  d.data = hoje();
+  d.cycle = S.nav.cycle || (S.nav.cycle = Date.now());
+  for(var i=0;i<S.visitas.length;i++){
+    if(S.visitas[i].cycle === d.cycle){ S.visitas[i] = d; save(); return; }
+  }
+  S.visitas.push(d); save();
+}
+function visitaAnterior(){
+  for(var i=S.visitas.length-1;i>=0;i--){
+    if(S.visitas[i].cycle !== S.nav.cycle) return S.visitas[i];
+  }
+  return null;
+}
+function houveMudanca(){
+  if(S.visitas.length === 1) return true;
+  if(S.visitas.length >= 2){
+    var a = S.visitas[S.visitas.length-1], b = S.visitas[S.visitas.length-2];
+    return a.tx !== b.tx;
+  }
+  return false;
+}
+
+/* ---------- transições ---------- */
+function irHome(){ S.nav.modo = "home"; S.nav.idx = 0; save(); render(); }
+function novoPaciente(){
+  var keep = fresh();
+  for(var k in keep) S[k] = keep[k];
+  S.nav = { modo:"inicial", idx:0, retomar:null, cycle:Date.now() };
+  save(); render();
+}
+function revisarInicial(){
+  S.nav.modo = "inicial"; S.nav.idx = 0;
+  if(!S.nav.cycle) S.nav.cycle = Date.now();
+  save(); render();
+}
+function registrarRetorno(){
+  S.re = null; S.fup = { prazo:null, check:{} };
+  S.nav = { modo:"reaval", idx:0, retomar:null, cycle:Date.now() };
+  reInit(); save(); render();
+}
+function abrirExacerbacao(){
+  if(S.nav.modo !== "exacerb") S.nav.retomar = { modo:S.nav.modo, idx:S.nav.idx };
+  S.exac = null;
+  S.nav.modo = "exacerb"; S.nav.idx = 0;
+  exacInit(); save(); render();
+}
+function sairExacerbacao(){
+  var r = S.nav.retomar;
+  S.nav.retomar = null;
+  if(r && r.modo && r.modo !== "exacerb"){ S.nav.modo = r.modo; S.nav.idx = r.idx; }
+  else { S.nav.modo = "home"; S.nav.idx = 0; }
+  save(); render();
+}
+function apagarTudo(){
+  if(!window.confirm("Apagar definitivamente os dados de " + (S.paciente.nome || "este paciente") + " deste navegador?")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  var f = fresh();
+  for(var k in f) S[k] = f[k];
+  save(); render();
+}
+
+/* ---------- navegação ---------- */
+function pular(id){ var t = T[id]; return !!(t && t.pular && t.pular()); }
+
+function avancar(){
+  var t = tela();
+  if(t.valid){
+    var v = t.valid();
+    if(v !== true){ erro(v); return; }
+  }
+  if(t.commit) t.commit();
+  if(t.step) { S.feitas[t.step] = true; }
+  save();
+  var f = flow(), i = S.nav.idx + 1;
+  while(i < f.length && pular(f[i])) i++;
+  if(i >= f.length){ fim(); return; }
+  S.nav.idx = i; save(); render(true);
+}
+function voltar(){
+  var f = flow(), i = S.nav.idx - 1;
+  while(i >= 0 && pular(f[i])) i--;
+  if(i < 0){
+    if(S.nav.modo === "exacerb") sairExacerbacao();
+    else irHome();
+    return;
+  }
+  S.nav.idx = i; save(); render(true);
+}
+function fim(){
+  if(S.nav.modo === "exacerb"){ sairExacerbacao(); return; }
+  irHome();
+}
+function irEtapa(n){
+  if(n === 8){ abrirExacerbacao(); return; }
+  var f = flow();
+  for(var i=0;i<f.length;i++){
+    var t = T[f[i]];
+    if(t && t.step === n && !pular(f[i])){
+      if(i <= S.nav.idx || S.feitas[n]){ S.nav.idx = i; save(); render(true); }
+      return;
+    }
+  }
+  if(n <= 4 && S.paciente.nome){ revisarInicial(); irEtapa(n); }
+  else if(n >= 5 && S.visitas.length){ registrarRetorno(); }
+}
+
+/* ---------- renderização ---------- */
+var focoPendente = null;
+
+function erro(msg){
+  var e = $("#err");
+  if(!e) return;
+  e.textContent = msg;
+  e.className = "err on";
+}
+
+function render(scroll){
+  var t = tela();
+  var modo = S.nav.modo;
+
+  /* chip do paciente */
+  var chip = $("#chip");
+  if(S.paciente.nome){
+    var c = (num(S.base.fev1)!=null && somaCat(S.base.cat)!=null) ? classificacao() : null;
+    chip.innerHTML = '<div class="patient-chip"><strong>' + esc(S.paciente.nome) + '</strong>' +
+      (c && c.grau ? '<span class="sep">·</span><span>' + c.rotulo + '</span>' : '') + '</div>';
+  } else chip.innerHTML = "";
+
+  /* trilha */
+  var atual = t.step || 0;
+  $("#rail").innerHTML = ETAPAS.map(function(e){
+    var cls = "rail-step" + (e[0] === atual ? " active" : (S.feitas[e[0]] ? " done" : ""));
+    return '<button type="button" class="' + cls + '" data-step="' + e[0] + '">' +
+      '<span class="n">' + e[0] + '</span><span class="lb">' + e[1] + '</span></button>';
+  }).join("");
+
+  var f = flow();
+  var pct = modo === "home" ? 0 : Math.round(((S.nav.idx + 1) / f.length) * 100);
+  $("#bar").style.width = pct + "%";
+
+  /* conteúdo */
+  var stage = $("#stage");
+  stage.className = "stage" + (t.wide ? " wide" : "");
+
+  var html;
+  if(t.step === 0){
+    html = t.render();
+  } else {
+    var ajuda = typeof t.ajuda === "function" ? t.ajuda() : t.ajuda;
+    var etapaNome = (ETAPAS[(t.step||1)-1] || [0,""])[1];
+    var passo = "Etapa " + t.step + " de 9 · " + etapaNome;
+    var corpo = '<section class="card">' +
+      '<div class="eyebrow">' + passo + '</div>' +
+      '<h2 class="q-title">' + t.titulo + '</h2>' +
+      (ajuda ? '<p class="q-help">' + ajuda + '</p>' : '') +
+      '<div class="q-body">' + t.render() + '</div>' +
+      '<div class="err" id="err"></div>' +
+      '</section>';
+    if(t.wide){
+      corpo = '<div style="margin-bottom:18px"><div class="eyebrow">' + passo + '</div>' +
+        '<h2 class="q-title">' + t.titulo + '</h2>' +
+        (ajuda ? '<p class="q-help">' + ajuda + '</p>' : '') + '</div>' +
+        t.render() + '<div class="err" id="err"></div>';
+    }
+    var nav = "";
+    if(!t.semNav){
+      nav = '<div class="navbar no-print">' +
+        '<button class="btn btn-secondary" data-act="voltar">Voltar</button>' +
+        '<div class="right">' +
+        (t.wide ? '<button class="btn btn-quiet" data-act="imprimir">Imprimir / PDF</button>' : '') +
+        '<button class="btn btn-primary" data-act="avancar">' + (t.proximo || "Continuar") + '</button>' +
+        '</div></div>';
+    }
+    html = corpo + nav;
+  }
+  stage.innerHTML = html;
+
+  /* restaura foco após re-render por digitação */
+  if(focoPendente){
+    var el = stage.querySelector('[data-path="' + focoPendente + '"]');
+    if(el){ el.focus(); try{ var v = el.value; el.value = ""; el.value = v; }catch(e){} }
+    focoPendente = null;
+  }
+  if(scroll) window.scrollTo({ top:0, behavior:"auto" });
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("click", function(ev){
+  var el = ev.target.closest ? ev.target.closest("[data-act],[data-go],[data-opt],[data-check],[data-scale],[data-chk],[data-step]") : null;
+  if(!el) return;
+
+  if(el.hasAttribute("data-act")){
+    var a = el.getAttribute("data-act");
+    if(a === "avancar") avancar();
+    else if(a === "voltar") voltar();
+    else if(a === "imprimir") window.print();
+    return;
+  }
+  if(el.hasAttribute("data-go")){
+    var g = el.getAttribute("data-go");
+    if(g === "novo") novoPaciente();
+    else if(g === "continuar" || g === "retorno") registrarRetorno();
+    else if(g === "revisar") revisarInicial();
+    else if(g === "exac") abrirExacerbacao();
+    else if(g === "home") irHome();
+    else if(g === "apagar") apagarTudo();
+    return;
+  }
+  if(el.hasAttribute("data-step")){
+    irEtapa(parseInt(el.getAttribute("data-step"), 10));
+    return;
+  }
+  if(el.hasAttribute("data-opt")){
+    var p = el.getAttribute("data-opt"), v = el.getAttribute("data-val");
+    set(p, isNaN(v) || v === "" ? v : Number(v));
+    render();
+    if(tela().auto) setTimeout(avancar, 130);
+    return;
+  }
+  if(el.hasAttribute("data-scale")){
+    var ps = el.getAttribute("data-scale");
+    set(ps, Number(el.getAttribute("data-val")));
+    render();
+    if(tela().auto) setTimeout(avancar, 130);
+    return;
+  }
+  if(el.hasAttribute("data-check")){
+    var pc = el.getAttribute("data-check");
+    set(pc, !get(pc));
+    render();
+    return;
+  }
+  if(el.hasAttribute("data-chk")){
+    var k = el.getAttribute("data-chk");
+    S.fup.check[k] = !S.fup.check[k];
+    save(); render();
+    return;
+  }
+});
+
+document.addEventListener("input", function(ev){
+  var el = ev.target;
+  if(!el.hasAttribute || !el.hasAttribute("data-path")) return;
+  set(el.getAttribute("data-path"), el.value);
+  focoPendente = el.getAttribute("data-path");
+  render();
+});
+
+document.addEventListener("keydown", function(ev){
+  if(ev.key !== "Enter") return;
+  var t = tela();
+  if(t.step === 0 || t.semNav) return;
+  if(ev.target && ev.target.tagName === "BUTTON") return;
+  ev.preventDefault();
+  avancar();
+});
+
+$("#btnExac").addEventListener("click", abrirExacerbacao);
+$("#btnHome").addEventListener("click", irHome);
+$("#refsBtn").addEventListener("click", function(){
+  var on = $("#refs").classList.toggle("on");
+  this.setAttribute("aria-expanded", on ? "true" : "false");
+});
+
+/* ---------- início ---------- */
+if(!S.nav.cycle) S.nav.cycle = Date.now();
+if(S.nav.modo === "exacerb" && !S.exac) S.nav.modo = "home";
+render();
+
+})();
+</script>
+</body>
+</html>
