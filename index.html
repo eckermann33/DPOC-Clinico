@@ -74,16 +74,18 @@ a{color:var(--accent-dark)}
 }
 .brand-name{font-size:15.5px; font-weight:600; color:#fff; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .brand-sub{font-size:12px; color:#8fa3b0; white-space:nowrap}
-@media (max-width:780px){.brand-sub{display:none}}
+@media (max-width:1280px){.brand-sub{display:none}}
 .topbar-spacer{flex:1}
+#userbox,#chip{display:flex; align-items:center; gap:10px; min-width:0}
 .patient-chip{
-  display:flex; align-items:center; gap:8px; max-width:280px;
+  display:flex; align-items:center; gap:8px; max-width:250px; white-space:nowrap; overflow:hidden;
   background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
   padding:5px 10px; border-radius:var(--r-sm); font-size:12.5px; color:#cfdde5;
 }
+.patient-chip span{overflow:hidden; text-overflow:ellipsis}
 .patient-chip strong{color:#fff; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .patient-chip .sep{color:#5c7180}
-@media (max-width:640px){.patient-chip{display:none}}
+@media (max-width:1080px){.patient-chip{display:none}}
 .tb-btn{
   background:transparent; border:1px solid rgba(255,255,255,.22); color:#dce6ec;
   padding:6px 11px; border-radius:var(--r-sm); font-size:13px; cursor:pointer;
@@ -96,6 +98,7 @@ a{color:var(--accent-dark)}
 .tb-btn.ghost{border-color:transparent; color:#9fb2bd}
 .tb-btn.ghost:hover{color:#fff; background:rgba(255,255,255,.07)}
 .tb-btn .curto{display:none}
+@media (max-width:530px){.brand-name{display:none} body.deslogado .brand-name{display:inline}}
 @media (max-width:600px){
   .topbar-in{padding:0 12px; gap:8px; height:52px}
   .brand-mark{padding:4px 5px; font-size:10px}
@@ -104,6 +107,7 @@ a{color:var(--accent-dark)}
   .tb-btn .longo{display:none}
   .tb-btn .curto{display:inline}
   .rail-wrap{top:52px}
+  #userbox{flex:none}
   .rail{padding:0 12px}
   main{padding:18px 12px 32px}
   .footer-in{padding:16px 12px 26px}
@@ -139,6 +143,7 @@ a{color:var(--accent-dark)}
 main{flex:1; width:100%; max-width:1120px; margin:0 auto; padding:26px 20px 44px}
 .stage{max-width:720px; margin:0 auto}
 .stage.wide{max-width:1120px}
+.stage.lista{max-width:920px}
 
 .card{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
@@ -159,13 +164,13 @@ main{flex:1; width:100%; max-width:1120px; margin:0 auto; padding:26px 20px 44px
 .field:last-child{margin-bottom:0}
 .field > label{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
 .field .sub{font-size:12.5px; color:var(--ink-3); margin-top:5px}
-input[type=text],input[type=number]{
+input[type=text],input[type=number],input[type=password]{
   width:100%; padding:10px 12px; background:var(--surface);
   border:1px solid var(--line-strong); border-radius:var(--r); font-size:15px;
   transition:border-color .12s, box-shadow .12s;
 }
-input[type=text]:hover,input[type=number]:hover{border-color:#a9b6c0}
-input[type=text]:focus,input[type=number]:focus{
+input[type=text]:hover,input[type=number]:hover,input[type=password]:hover{border-color:#a9b6c0}
+input[type=text]:focus,input[type=number]:focus,input[type=password]:focus{
   outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,116,144,.15);
 }
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -399,6 +404,106 @@ footer{background:var(--surface); border-top:1px solid var(--line); margin-top:a
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
+
+/* ---------- login / perfil ---------- */
+.auth{max-width:420px; margin:6vh auto 0}
+.auth .card{padding:28px}
+.auth h1{font-size:20px; color:var(--petrol-900)}
+.auth .lead{margin-top:8px; color:var(--ink-3); font-size:13.5px}
+.tabs{display:flex; gap:4px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); padding:4px; margin:20px 0 18px}
+.tabs button{
+  flex:1; padding:8px 10px; border:0; background:none; border-radius:var(--r-sm);
+  font-size:13.5px; font-weight:600; color:var(--ink-3); cursor:pointer;
+}
+.tabs button.on{background:var(--surface); color:var(--petrol-900); box-shadow:var(--shadow-1)}
+.auth-foot{margin-top:18px; font-size:12.5px; color:var(--ink-3); line-height:1.55}
+
+/* ---------- barra do usuário ---------- */
+.user-chip{
+  display:flex; align-items:center; gap:7px; font-size:12.5px; color:#a9bcc7;
+  padding-right:2px; white-space:nowrap;
+}
+.user-chip b{color:#dfe9ee; font-weight:600}
+@media (max-width:1180px){.user-chip{display:none}}
+
+/* ---------- banco de pacientes ---------- */
+.search{position:relative; margin-top:18px}
+.search input{padding-left:34px}
+.search::before{
+  content:""; position:absolute; left:12px; top:50%; width:11px; height:11px; margin-top:-7px;
+  border:1.7px solid var(--ink-4); border-radius:50%;
+}
+.search::after{
+  content:""; position:absolute; left:21px; top:50%; margin-top:2px; width:6px; height:1.7px;
+  background:var(--ink-4); transform:rotate(45deg);
+}
+.plist{margin-top:14px; border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; background:var(--surface)}
+.prow{display:flex; align-items:center; gap:14px; padding:13px 16px; border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+.prow:hover{background:var(--surface-2)}
+.prow .av{
+  flex:none; width:34px; height:34px; border-radius:50%; background:var(--petrol-700); color:#fff;
+  display:grid; place-items:center; font-size:13px; font-weight:600; letter-spacing:.02em;
+}
+.prow .info{display:block; min-width:0; flex:1}
+.prow .nm{display:block; font-size:14.5px; font-weight:600; color:var(--petrol-900); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.prow .meta{display:block; font-size:12.5px; color:var(--ink-3); margin-top:3px; line-height:1.45}
+.prow .acts{display:flex; gap:7px; flex:none}
+.btn-sm{
+  border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-2);
+  border-radius:var(--r-sm); padding:6px 11px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;
+}
+.btn-sm:hover{border-color:var(--accent); color:var(--accent-dark)}
+.btn-sm.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+.btn-sm.primary:hover{background:var(--accent-dark); color:#fff}
+.btn-sm.danger:hover{border-color:var(--danger); color:var(--danger)}
+@media (max-width:640px){
+  .prow{flex-wrap:wrap}
+  .prow .acts{width:100%; padding-left:48px}
+}
+.empty{padding:34px 20px; text-align:center; color:var(--ink-3); font-size:13.5px}
+.hist{padding:0 16px 14px 64px; background:var(--surface-2); border-bottom:1px solid var(--line)}
+.hist table{width:100%; border-collapse:collapse; font-size:13px}
+.hist td{padding:8px 10px 8px 0; border-bottom:1px solid var(--line); color:var(--ink-2); vertical-align:top}
+.hist tr:last-child td{border-bottom:0}
+.hist .d{white-space:nowrap; color:var(--ink-3); font-variant-numeric:tabular-nums}
+
+/* ---------- blocos de texto para copiar ---------- */
+.txtblock{border:1px solid var(--line-strong); border-radius:var(--r); overflow:hidden; background:var(--surface)}
+.txtblock + .txtblock{margin-top:16px}
+.txtblock-h{
+  display:flex; align-items:center; gap:12px; padding:9px 12px;
+  background:var(--surface-2); border-bottom:1px solid var(--line);
+}
+.txtblock-h .t{font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2)}
+.txtblock-h .btn-copy{margin-left:auto}
+.btn-copy{
+  border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-2);
+  border-radius:var(--r-sm); padding:5px 10px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+}
+.btn-copy:hover{border-color:var(--accent); color:var(--accent-dark)}
+.btn-copy.ok{background:var(--ok-soft); border-color:#c9e2d6; color:var(--ok)}
+.txtblock pre{
+  margin:0; padding:14px 16px; font-family:var(--mono); font-size:12.5px; line-height:1.65;
+  color:var(--ink); white-space:pre-wrap; word-break:break-word; max-height:420px; overflow:auto;
+}
+.txtblock pre.prosa{font-family:var(--font); font-size:13.5px; line-height:1.7}
+
+/* ---------- orientações ---------- */
+ul.orient{margin:0; padding:0; list-style:none}
+ul.orient li{
+  display:flex; gap:11px; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px; color:var(--ink-2); line-height:1.5;
+}
+ul.orient li:last-child{border-bottom:0}
+ul.orient li:first-child{padding-top:0}
+ul.orient .m{
+  flex:none; margin-top:2px; width:16px; height:16px; border-radius:4px; background:var(--accent-soft);
+  border:1px solid #bcdae2; position:relative;
+}
+ul.orient .m::after{content:""; position:absolute; left:4.5px; top:1px; width:4px; height:8px; border:solid var(--accent-dark); border-width:0 1.8px 1.8px 0; transform:rotate(42deg)}
+ul.orient li.alerta .m{background:var(--warn-soft); border-color:#eddcb9}
+ul.orient li.alerta .m::after{border-color:var(--warn)}
+
 @media print{
   .topbar,.rail-wrap,.navbar,.refs-toggle,.no-print{display:none !important}
   body{background:#fff}
@@ -420,8 +525,7 @@ footer{background:var(--surface); border-top:1px solid var(--line); margin-top:a
     </div>
     <div class="topbar-spacer"></div>
     <div id="chip"></div>
-    <button class="tb-btn alert" id="btnExac" type="button"><span class="longo">Exacerbação aguda</span><span class="curto">Exacerbação</span></button>
-    <button class="tb-btn ghost" id="btnHome" type="button">Início</button>
+    <div id="userbox"></div>
   </div>
 </header>
 
@@ -458,41 +562,222 @@ footer{background:var(--surface); border-top:1px solid var(--line); margin-top:a
 "use strict";
 
 /* ============================================================
-   1. ESTADO E PERSISTÊNCIA
-   ============================================================ */
-var KEY = "dpoc_clinico_v1";
+   1. CAMADA DE DADOS  (driver trocável)
+   ------------------------------------------------------------
+   Todo acesso a dados passa por DB.*, cujos métodos são
+   assíncronos (Promise). Hoje DB = DriverLocal (OPÇÃO A: perfil
+   local por navegador, 100% estático). Para migrar para login e
+   banco reais (OPÇÃO B: Firebase Auth + Firestore, Supabase...),
+   basta escrever um driver com a MESMA interface e trocar a
+   linha "var DB = DriverLocal;" — nenhuma tela precisa mudar.
 
+   Interface exigida de um driver:
+     usuarioAtual()                 -> {id,user,nome} | null
+     criarConta(user, senha, nome)  -> usuário
+     entrar(user, senha)            -> usuário
+     sair()                         -> void
+     listarPacientes()              -> [paciente]
+     obterPaciente(id)              -> paciente | null
+     salvarPaciente(paciente)       -> paciente  (cria se não tem id)
+     excluirPaciente(id)            -> void
+     lerRascunho() / salvarRascunho(s) / limparRascunho()
+   ============================================================ */
+var NS = "dpoc_clinico";
+
+function lsGet(k, def){
+  try{ var v = localStorage.getItem(k); return v==null ? def : JSON.parse(v); }
+  catch(e){ return def; }
+}
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function uid(pref){
+  return (pref||"") + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+function normUser(u){ return String(u||"").trim().toLowerCase(); }
+
+/* Hash da senha: SHA-256 quando disponível; senão, hash simples.
+   Vale só para não guardar a senha em texto puro no navegador —
+   não é autenticação de servidor (ver aviso na tela de login). */
+function hashSenha(senha, salt){
+  var txt = "dpoc$" + salt + "$" + senha;
+  if(window.crypto && window.crypto.subtle && window.TextEncoder){
+    return window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt))
+      .then(function(buf){
+        return Array.prototype.map.call(new Uint8Array(buf), function(b){
+          return ("0" + b.toString(16)).slice(-2);
+        }).join("");
+      })
+      .catch(function(){ return hashFraco(txt); });
+  }
+  return Promise.resolve(hashFraco(txt));
+}
+function hashFraco(t){
+  var h1 = 0x811c9dc5, h2 = 0x1000193;
+  for(var i=0;i<t.length;i++){
+    h1 = ((h1 ^ t.charCodeAt(i)) * 16777619) >>> 0;
+    h2 = ((h2 + t.charCodeAt(i) * (i+7)) * 2654435761) >>> 0;
+  }
+  return ("00000000" + h1.toString(16)).slice(-8) + ("00000000" + h2.toString(16)).slice(-8);
+}
+
+var DriverLocal = {
+  id: "local",
+  rotulo: "Perfil local neste navegador",
+  _u: null,
+
+  usuarioAtual: function(){
+    if(this._u) return Promise.resolve(this._u);
+    var id = lsGet(NS + ":sessao", null);
+    if(!id) return Promise.resolve(null);
+    var us = lsGet(NS + ":usuarios", {});
+    for(var k in us) if(us[k].id === id){ this._u = { id:us[k].id, user:us[k].user, nome:us[k].nome }; return Promise.resolve(this._u); }
+    return Promise.resolve(null);
+  },
+  criarConta: function(user, senha, nome){
+    var self = this, u = normUser(user);
+    if(u.length < 3) return Promise.reject(new Error("O usuário precisa ter ao menos 3 caracteres."));
+    if(!/^[a-z0-9._-]+$/.test(u)) return Promise.reject(new Error("Use apenas letras, números, ponto, hífen ou sublinhado no usuário."));
+    if(String(senha).length < 4) return Promise.reject(new Error("A senha precisa ter ao menos 4 caracteres."));
+    var us = lsGet(NS + ":usuarios", {});
+    if(us[u]) return Promise.reject(new Error("Já existe um perfil com esse usuário neste computador."));
+    var salt = uid("s");
+    return hashSenha(senha, salt).then(function(h){
+      us[u] = { id:uid("u"), user:u, nome:(String(nome||"").trim() || user), hash:h, salt:salt, criadoEm:Date.now() };
+      lsSet(NS + ":usuarios", us);
+      lsSet(NS + ":sessao", us[u].id);
+      self._u = { id:us[u].id, user:us[u].user, nome:us[u].nome };
+      return self._u;
+    });
+  },
+  entrar: function(user, senha){
+    var self = this, u = normUser(user);
+    var us = lsGet(NS + ":usuarios", {});
+    var reg = us[u];
+    if(!reg) return Promise.reject(new Error("Perfil não encontrado neste computador. Crie um perfil novo."));
+    return hashSenha(senha, reg.salt).then(function(h){
+      if(h !== reg.hash) throw new Error("Senha incorreta.");
+      lsSet(NS + ":sessao", reg.id);
+      self._u = { id:reg.id, user:reg.user, nome:reg.nome };
+      return self._u;
+    });
+  },
+  sair: function(){ this._u = null; lsDel(NS + ":sessao"); return Promise.resolve(); },
+
+  _base: function(){
+    if(!this._u) throw new Error("Nenhum profissional autenticado.");
+    return NS + ":" + this._u.id;
+  },
+  listarPacientes: function(){
+    var m = lsGet(this._base() + ":pacientes", {}), out = [];
+    for(var k in m) out.push(m[k]);
+    out.sort(function(a,b){ return (b.atualizadoEm||0) - (a.atualizadoEm||0); });
+    return Promise.resolve(out);
+  },
+  obterPaciente: function(id){
+    var m = lsGet(this._base() + ":pacientes", {});
+    return Promise.resolve(m[id] || null);
+  },
+  salvarPaciente: function(pac){
+    var m = lsGet(this._base() + ":pacientes", {});
+    if(!pac.id) pac.id = uid("p");
+    if(!pac.criadoEm) pac.criadoEm = Date.now();
+    pac.atualizadoEm = Date.now();
+    m[pac.id] = pac;
+    lsSet(this._base() + ":pacientes", m);
+    return Promise.resolve(pac);
+  },
+  excluirPaciente: function(id){
+    var m = lsGet(this._base() + ":pacientes", {});
+    delete m[id];
+    lsSet(this._base() + ":pacientes", m);
+    return Promise.resolve();
+  },
+  lerRascunho: function(){ return Promise.resolve(lsGet(this._base() + ":rascunho", null)); },
+  salvarRascunho: function(st){ lsSet(this._base() + ":rascunho", st); return Promise.resolve(); },
+  limparRascunho: function(){ lsDel(this._base() + ":rascunho"); return Promise.resolve(); }
+};
+
+/* OPÇÃO B (login e banco reais) — esqueleto para substituição futura:
+   var DriverFirebase = {
+     usuarioAtual(){ return new Promise(r => onAuthStateChanged(auth, u => r(u && {id:u.uid,...}))); },
+     entrar(u,s){ return signInWithEmailAndPassword(auth,u,s).then(...); },
+     listarPacientes(){ return getDocs(collection(db,"usuarios",uid,"pacientes")).then(...); },
+     ...mesma interface...
+   };
+   Depois basta:  var DB = DriverFirebase;                                    */
+var DB = DriverLocal;
+
+/* ============================================================
+   1b. ESTADO DE TRABALHO (atendimento em andamento)
+   ============================================================ */
 function fresh(){
   return {
-    v: 1,
+    v: 2,
+    pacienteId: null,
+    criadoEm: null,
     paciente: { nome:"", idade:"", fumo:"", cigs:"", anos:"" },
-    base: { mmrc:null, cat:[null,null,null,null,null,null,null,null], fev1:"",
+    base: { mmrc:null, cat:[null,null,null,null,null,null,null,null], fev1:"", semEspiro:false,
             exMod:"", exSev:"", eosKnown:null, eos:"", bronqCronica:null },
     tx: { atual:null, recomendado:null },
-    visitas: [],                 /* histórico de consultas fechadas */
+    visitas: [],                 /* atendimentos encerrados */
     re: null,                    /* reavaliação em andamento */
     exac: null,                  /* exacerbação em andamento */
     fup: { prazo:null, check:{} },
-    nav: { modo:"home", idx:0, retomar:null },
+    nav: { modo:"pacientes", idx:0, retomar:null },
     feitas: {}                   /* etapas concluídas: {2:true, ...} */
   };
 }
 
-var S = load();
+var AUTH = null;                 /* profissional autenticado */
+var S = fresh();                 /* rascunho do atendimento atual */
+var PACIENTES = [];              /* cache da lista, recarregado sob demanda */
+var UI = { aba:"entrar", authErr:"", busca:"", aberto:null, msg:"" };
 
-function load(){
-  try{
-    var raw = localStorage.getItem(KEY);
-    if(!raw) return fresh();
-    var o = JSON.parse(raw);
-    if(!o || o.v !== 1) return fresh();
-    var f = fresh();
-    for(var k in f) if(!(k in o)) o[k] = f[k];
-    return o;
-  }catch(e){ return fresh(); }
+function save(){ if(AUTH) DB.salvarRascunho(S); }
+
+/* ---------- conversão entre o rascunho e o registro do paciente ---------- */
+function pacienteDeS(){
+  var c = classificacao();
+  var ult = S.visitas.length ? S.visitas[S.visitas.length-1] : null;
+  return {
+    id: S.pacienteId,
+    criadoEm: S.criadoEm || Date.now(),
+    nome: S.paciente.nome,
+    paciente: JSON.parse(JSON.stringify(S.paciente)),
+    base: JSON.parse(JSON.stringify(S.base)),
+    tx: JSON.parse(JSON.stringify(S.tx)),
+    atendimentos: JSON.parse(JSON.stringify(S.visitas)),
+    resumo: {
+      classificacao: c.rotulo,
+      grau: c.grau, grupo: c.grupo,
+      semEspiro: !!S.base.semEspiro,
+      ultimoAtendimento: ult ? ult.data : null,
+      esquema: ult ? ult.esquema : (S.tx.recomendado ? TX_NOME[S.tx.recomendado] : null)
+    }
+  };
 }
-function save(){
-  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+function carregarPacienteEmS(pac){
+  var f = fresh();
+  S.pacienteId = pac.id;
+  S.criadoEm = pac.criadoEm;
+  S.paciente = Object.assign({}, f.paciente, pac.paciente || {});
+  S.base = Object.assign({}, f.base, pac.base || {});
+  S.tx = Object.assign({}, f.tx, pac.tx || {});
+  S.visitas = pac.atendimentos || [];
+  S.re = null; S.exac = null;
+  S.fup = { prazo:null, check:{} };
+  S.feitas = {};
+  if(S.base.mmrc!=null) S.feitas[1] = true;
+  if(S.visitas.length){ S.feitas[2] = S.feitas[3] = S.feitas[4] = true; }
+}
+/* grava o paciente no banco (não bloqueia a interface) */
+function persistirPaciente(){
+  if(!AUTH || !S.paciente.nome) return Promise.resolve();
+  var pac = pacienteDeS();
+  return DB.salvarPaciente(pac).then(function(p){
+    S.pacienteId = p.id; S.criadoEm = p.criadoEm; save();
+    return p;
+  });
 }
 
 /* ============================================================
@@ -589,16 +874,24 @@ var GRUPO_TXT = {
        crit:"≥ 2 exacerbações moderadas ou ≥ 1 exacerbação com hospitalização no último ano" }
 };
 
+function semEspirometria(){ return !!S.base.semEspiro; }
+
 function classificacao(){
-  var fev1 = num(S.base.fev1);
+  var pend = semEspirometria();
+  var fev1 = pend ? null : num(S.base.fev1);
   var cat = somaCat(S.base.cat);
   var g = grauGold(fev1);
   var grupo = grupoABE(S.base.mmrc, cat, num(S.base.exMod), num(S.base.exSev));
+  var rotGrau = g ? ("GOLD " + g) : (pend ? "Grau pendente" : "Grau indeterminado");
   return {
-    fev1:fev1, cat:cat, mmrc:S.base.mmrc, grau:g, grupo:grupo,
+    fev1:fev1, cat:cat, mmrc:S.base.mmrc, grau:g, grupo:grupo, pendente:pend,
     exMod:num(S.base.exMod)||0, exSev:num(S.base.exSev)||0,
-    rotulo: (g?("GOLD "+g):"Grau indeterminado") + ", Grupo " + grupo,
-    frase: (g? ("DPOC " + GRAU_NOME[g].toLowerCase()) : "grau espirométrico indeterminado") + ", " +
+    rotuloGrau: rotGrau,
+    grauTxt: g ? ("GOLD " + g + " · " + GRAU_NOME[g]) : (pend ? "pendente" : "indeterminado"),
+    rotulo: rotGrau + ", Grupo " + grupo,
+    frase: (g ? ("DPOC " + GRAU_NOME[g].toLowerCase())
+              : (pend ? "gravidade da obstrução ainda não estabelecida (espirometria pendente)"
+                      : "grau espirométrico indeterminado")) + ", " +
            (grupo==="E" ? "alto risco de exacerbação" : (grupo==="B" ? "alto sintoma, baixo risco de exacerbação" : "poucos sintomas, baixo risco de exacerbação"))
   };
 }
@@ -759,7 +1052,7 @@ function planoAjuste(){
   var bronq = re.bronqCronica != null ? re.bronqCronica : S.base.bronqCronica;
   var fumo = re.fumo || S.paciente.fumo;
 
-  var p = { ramo:a.ramo, txAtual:tx, eos:eos, acoes:[], antes:[], alertas:[], novoEsquema:null, a:a };
+  var p = { ramo:a.ramo, txAtual:tx, eos:eos, acoes:[], antes:[], alertas:[], novoEsquema:null, add:[], a:a };
 
   /* verificação obrigatória antes de qualquer escalonamento */
   p.antes = [
@@ -840,13 +1133,15 @@ function planoAjuste(){
       ];
       if(eos==null) p.acoes.push(["<b>Solicitar hemograma com eosinófilos</b> — se ≥ 300 células/µL, a conduta muda para terapia tripla.",1]);
       var roflOk = (fev1!=null && fev1 < 50) && bronq === "sim";
+      if(roflOk) p.add.push("roflumilaste");
       p.acoes.push([
         "<b>Roflumilaste</b> 500 µg/dia — " + (roflOk
           ? "<b>critérios preenchidos</b> (VEF₁ " + n1(fev1) + "% < 50% e bronquite crônica). Advertir sobre náusea, diarreia, perda de peso e alterações do humor."
           : "critérios <b>não</b> preenchidos (exige VEF₁ < 50% do previsto <i>e</i> bronquite crônica" +
-            (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "") +
+            (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "; VEF₁ ainda não disponível") +
             (bronq==="nao" ? "; sem bronquite crônica" : "") + ")."), roflOk?1:0]);
       var aziOk = (fumo === "ex");
+      if(aziOk && !roflOk) p.add.push("azitromicina");
       p.acoes.push([
         "<b>Azitromicina profilática</b> (250 mg/dia ou 500 mg 3×/semana por até 1 ano) — " + (aziOk
           ? "<b>perfil favorável</b> (ex-fumante). Antes de iniciar: ECG (intervalo QT), audiometria/queixa auditiva e atenção à resistência bacteriana."
@@ -861,10 +1156,12 @@ function planoAjuste(){
       ["Já em <b>terapia tripla</b> com exacerbações persistentes: não há escalonamento inalatório adicional.",1]
     ];
     var roflOk2 = (fev1!=null && fev1 < 50) && bronq === "sim";
+    if(roflOk2) p.add.push("roflumilaste");
     p.acoes.push(["<b>Adicionar roflumilaste</b> 500 µg/dia — " + (roflOk2
         ? "<b>critérios preenchidos</b> (VEF₁ " + n1(fev1) + "% < 50% e bronquite crônica)."
-        : "exige VEF₁ < 50% do previsto e bronquite crônica" + (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "") + "."), roflOk2?1:0]);
+        : "exige VEF₁ < 50% do previsto e bronquite crônica" + (fev1!=null ? "; VEF₁ atual " + n1(fev1) + "%" : "; VEF₁ ainda não disponível") + "."), roflOk2?1:0]);
     var aziOk2 = (fumo === "ex");
+    if(aziOk2 && !roflOk2) p.add.push("azitromicina");
     p.acoes.push(["<b>Adicionar azitromicina</b> profilática — " + (aziOk2
         ? "<b>perfil favorável</b> (ex-fumante); checar QT no ECG e audição antes de iniciar."
         : "benefício menor em fumante ativo; priorizar cessação."), aziOk2?1:0]);
@@ -954,6 +1251,20 @@ function campoNum(path, label, sufixo, ph, sub){
     (sufixo ? '<span>' + sufixo + '</span>' : '') + '</div>' +
     (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
 }
+function setUI(path, val){
+  var q = path.split("."), oo = UI;
+  for(var i=0;i<q.length-1;i++){ if(oo[q[i]]==null) oo[q[i]] = {}; oo = oo[q[i]]; }
+  oo[q[q.length-1]] = val;
+}
+function getUI(path){
+  var q = path.split("."), oo = UI;
+  for(var i=0;i<q.length;i++){ if(oo==null) return ""; oo = oo[q[i]]; }
+  return oo==null ? "" : oo;
+}
+function campoUI(path, label, tipo, ph){
+  return '<div class="field"><label>' + label + '</label>' +
+    '<input type="' + tipo + '" data-ui="' + esc(path) + '" value="' + esc(getUI(path)) + '" placeholder="' + esc(ph||"") + '" autocomplete="off" autocapitalize="off" spellcheck="false"></div>';
+}
 function escala05(path){
   var v = get(path);
   var h = '<div class="scale">';
@@ -984,47 +1295,242 @@ function deltaTxt(d, invertido){
   return '<span class="delta ' + cls + '">' + sinal + n1(d) + '</span>';
 }
 
+
+/* ============================================================
+   5b. PRESCRIÇÃO, ORIENTAÇÕES E TEXTO DE PRONTUÁRIO
+   ============================================================ */
+var FARMACO = {
+  mono: {
+    nome:"Brometo de tiotrópio 2,5 mcg/dose — inalador (LAMA)",
+    pos:"Inalar 2 doses (5 mcg), 1 vez ao dia, sempre no mesmo horário.",
+    dur:"Uso contínuo.",
+    alt:"Alternativa (LABA): indacaterol 150 mcg, inalar 1 cápsula 1 vez ao dia."
+  },
+  dual: {
+    nome:"Umeclidínio 62,5 mcg + vilanterol 25 mcg — inalador único (LAMA + LABA)",
+    pos:"Inalar 1 dose, 1 vez ao dia, sempre no mesmo horário.",
+    dur:"Uso contínuo.",
+    alt:"Alternativas: indacaterol 110 mcg + glicopirrônio 50 mcg, 1 dose 1x/dia; ou formoterol 4,8 mcg + glicopirrônio 7,2 mcg, 2 inalações a cada 12 horas."
+  },
+  triple: {
+    nome:"Fluticasona furoato 100 mcg + umeclidínio 62,5 mcg + vilanterol 25 mcg — inalador único (ICS + LAMA + LABA)",
+    pos:"Inalar 1 dose, 1 vez ao dia, sempre no mesmo horário. Bochechar a boca após o uso.",
+    dur:"Uso contínuo.",
+    alt:"Alternativa: budesonida 160 mcg + glicopirrônio 7,2 mcg + formoterol 4,8 mcg, 2 inalações a cada 12 horas."
+  },
+  outro: {
+    nome:"Broncodilatador de longa ação a definir (LABA e/ou LAMA)",
+    pos:"Definir classe e dispositivo conforme disponibilidade e capacidade inspiratória do paciente.",
+    dur:"Uso contínuo."
+  },
+  saba: {
+    nome:"Salbutamol aerossol 100 mcg/jato (SABA — resgate)",
+    pos:"Inalar 2 jatos se falta de ar, podendo repetir a cada 4 a 6 horas.",
+    dur:"Uso se necessário."
+  },
+  roflumilaste: {
+    nome:"Roflumilaste 500 mcg — comprimido",
+    pos:"Tomar 1 comprimido por via oral, 1 vez ao dia.",
+    dur:"Uso contínuo. Advertir sobre náusea, diarreia, perda de peso e alterações do humor."
+  },
+  azitromicina: {
+    nome:"Azitromicina 500 mg — comprimido",
+    pos:"Tomar 1 comprimido por via oral, 3 vezes por semana (segunda, quarta e sexta).",
+    dur:"Uso profilático por até 12 meses. Solicitar ECG (intervalo QT) e avaliar audição antes de iniciar."
+  },
+  prednisona: {
+    nome:"Prednisona 20 mg — comprimido",
+    pos:"Tomar 2 comprimidos (40 mg) por via oral, 1 vez ao dia, pela manhã.",
+    dur:"Por 5 dias, sem desmame. Não usar de forma crônica."
+  },
+  antibiotico: {
+    nome:"Amoxicilina 875 mg + clavulanato 125 mg — comprimido",
+    pos:"Tomar 1 comprimido por via oral a cada 12 horas.",
+    dur:"Por 7 dias. Ajustar conforme perfil local de resistência e uso prévio de antibióticos."
+  }
+};
+
+/* monta a lista de itens da prescrição a partir do esquema decidido */
+function itensPrescricao(classe, extras){
+  var it = [], f = FARMACO[classe] || FARMACO.outro;
+  it.push(f);
+  (extras || []).forEach(function(k){ if(FARMACO[k]) it.push(FARMACO[k]); });
+  it.push(FARMACO.saba);
+  return it;
+}
+
+function cabecalhoRx(){
+  var idade = num(S.paciente.idade);
+  return "PRESCRIÇÃO — " + (S.paciente.nome || "paciente") +
+         (idade!=null ? ", " + idade + " anos" : "") + "\nData: " + dataBR(hoje()) +
+         (AUTH ? "\nProfissional: " + AUTH.nome : "");
+}
+
+function textoPrescricao(classe, extras, prazo){
+  var it = itensPrescricao(classe, extras);
+  var linhas = [cabecalhoRx(), ""];
+  it.forEach(function(f, i){
+    linhas.push((i+1) + ") " + f.nome);
+    linhas.push("   " + f.pos);
+    linhas.push("   " + f.dur);
+    if(f.alt) linhas.push("   " + f.alt);
+    linhas.push("");
+  });
+  linhas.push("ORIENTAÇÕES");
+  linhas.push("- Conferir a técnica inalatória: levar o dispositivo em todas as consultas.");
+  if(S.paciente.fumo === "fumante") linhas.push("- Cessação do tabagismo: manter o plano pactuado nesta consulta.");
+  if(semEspirometria()) linhas.push("- Realizar espirometria com prova broncodilatadora antes do retorno.");
+  linhas.push("- Procurar atendimento se piora da falta de ar com aumento ou mudança de cor do catarro.");
+  if(prazo) linhas.push("- Retorno em " + prazo + ".");
+  return linhas.join("\n");
+}
+
+function textoPrescricaoExacerbacao(){
+  var pe = planoExacerbacao();
+  var it = [FARMACO.saba];
+  if(pe.cort) it.push(FARMACO.prednisona);
+  if(pe.atb) it.push(FARMACO.antibiotico);
+  var linhas = [cabecalhoRx().replace("PRESCRIÇÃO", "PRESCRIÇÃO — EXACERBAÇÃO AGUDA"), ""];
+  it.forEach(function(f, i){
+    linhas.push((i+1) + ") " + f.nome);
+    linhas.push("   " + f.pos);
+    linhas.push("   " + f.dur);
+    linhas.push("");
+  });
+  linhas.push("ORIENTAÇÕES");
+  linhas.push("- Manter a medicação inalatória de uso contínuo (não suspender durante a crise).");
+  if(pe.grav === "grave") linhas.push("- ENCAMINHAMENTO IMEDIATO a serviço de emergência.");
+  else linhas.push("- Retornar em 48 a 72 horas para reavaliação, ou antes se houver piora.");
+  linhas.push("- Procurar emergência se falta de ar em repouso, confusão, sonolência ou lábios/extremidades arroxeados.");
+  return linhas.join("\n");
+}
+
+/* ---------- orientações ao paciente (tela de encerramento) ---------- */
+function orientacoesPaciente(prazoTxt){
+  var c = classificacao(), o = [];
+  o.push([ "<b>Técnica inalatória.</b> Usar o dispositivo conforme demonstrado e trazer o inalador em todas as consultas para conferência.", 0 ]);
+  if(S.paciente.fumo === "fumante")
+    o.push([ "<b>Parar de fumar.</b> É a medida que mais muda o curso da doença. Apoio disponível na unidade de saúde, com medicação quando indicada.", 1 ]);
+  else if(S.paciente.fumo === "ex")
+    o.push([ "<b>Manter-se sem fumar.</b> Evitar também exposição à fumaça de lenha, poeiras e vapores.", 0 ]);
+  else
+    o.push([ "<b>Evitar exposições.</b> Fumaça de lenha, poeiras e vapores ocupacionais e ambientes com poluição.", 0 ]);
+  o.push([ "<b>Vacinação em dia.</b> Influenza anual, pneumocócica, COVID-19 e dTpa conforme calendário.", 0 ]);
+  if((c.mmrc!=null && c.mmrc>=2) || (c.cat!=null && c.cat>=10))
+    o.push([ "<b>Reabilitação pulmonar e atividade física.</b> Encaminhamento indicado; manter caminhadas regulares dentro do tolerado.", 0 ]);
+  if(semEspirometria())
+    o.push([ "<b>Solicitar espirometria com prova broncodilatadora.</b> Exame pendente — necessário para confirmar o diagnóstico e definir o grau GOLD. Trazer o resultado no retorno.", 1 ]);
+  o.push([ "<b>Quando voltar.</b> Retorno " + (prazoTxt ? "em " + prazoTxt : "conforme combinado") + ", levando todas as medicações em uso.", 0 ]);
+  o.push([ "<b>Quando procurar atendimento antes.</b> Piora da falta de ar, aumento do catarro ou mudança da cor do catarro, febre, sonolência ou confusão.", 1 ]);
+  return o;
+}
+
+/* ---------- evolução de prontuário ---------- */
+function fumoTexto(){
+  var m = macosAno();
+  if(S.paciente.fumo === "nunca") return "sem história de tabagismo";
+  var t = (S.paciente.fumo === "ex" ? "ex-tabagista" : "tabagista ativo");
+  return t + (m!=null && m>0 ? " com carga tabágica de " + n1(m) + " maços-ano" : "");
+}
+function textoProntuario(ctx){
+  ctx = ctx || {};
+  var c = classificacao();
+  var idade = num(S.paciente.idade);
+  var retorno = ctx.prazo || "a definir";
+  var ret = ctx.tipo === "retorno";
+  var a = ret ? avaliaResposta() : null;
+  var cat = ret ? a.catNovo : c.cat;
+  var mmrc = ret ? a.mmrcNovo : c.mmrc;
+  var exMod = ret ? a.exMod : c.exMod;
+  var exSev = ret ? a.exSev : c.exSev;
+  var t = [];
+
+  t.push("Paciente " + (S.paciente.nome || "—") + (idade!=null ? ", " + idade + " anos" : "") + ", " + fumoTexto() + ".");
+  if(ret) t.push("Retorno de acompanhamento para reavaliação de DPOC em tratamento com " + minusc1(TX_NOME[a.tx]) + ".");
+  t.push("Dispneia mMRC " + (mmrc==null?"não aferida":mmrc) + ", CAT " + (cat==null?"não aferido":cat + "/40") + ".");
+  t.push(c.pendente
+    ? "Espirometria ainda não realizada — solicitada espirometria com prova broncodilatadora nesta consulta."
+    : "VEF1 pós-broncodilatador de " + n1(c.fev1) + "% do previsto.");
+  t.push((ret ? "No intervalo desde a última consulta" : "Nos últimos 12 meses") + ", " +
+    (exMod + exSev === 0 ? "não houve exacerbações."
+      : plural(exMod, "exacerbação moderada", "exacerbações moderadas") + " e " +
+        plural(exSev, "exacerbação grave", "exacerbações graves") + " (com hospitalização)."));
+  var eos = (S.re && S.re.eosKnown === "sim") ? num(S.re.eos) : (S.base.eosKnown === "sim" ? num(S.base.eos) : null);
+  if(eos != null) t.push("Eosinófilos no sangue: " + eos + " células/uL.");
+  t.push("Classificação: " + c.rotulo + (c.pendente ? " (grau espirométrico pendente)" : "") + ".");
+
+  if(ret){
+    t.push("Comparado à consulta anterior: CAT " + (a.ref.cat==null?"—":a.ref.cat) + " para " + (cat==null?"—":cat) +
+      ", mMRC " + (a.ref.mmrc==null?"—":a.ref.mmrc) + " para " + (mmrc==null?"—":mmrc) + ".");
+    t.push("Resposta ao tratamento considerada " +
+      (a.dispneiaRuim ? "inadequada" : "adequada") + " para sintomas e " +
+      (a.exacRuim ? "inadequada" : "adequada") + " para exacerbações.");
+    t.push("Adesão " + ({boa:"adequada", parcial:"parcial", ruim:"irregular"}[a.adesao] || "não registrada") +
+      "; técnica inalatória " + ({adequada:"adequada", inadequada:"inadequada, corrigida em consulta", nao:"não avaliada nesta consulta"}[a.tecnica] || "não registrada") + ".");
+  }
+
+  t.push("Conduta: " + (ctx.condutaTxt || "—") + ".");
+  t.push("Orientados cessação/abstinência do tabagismo, vacinação em dia, técnica inalatória e sinais de alerta para exacerbação.");
+  if(semEspirometria()) t.push("Solicitada espirometria com prova broncodilatadora.");
+  t.push("Retorno em " + retorno + ".");
+  if(AUTH) t.push("Atendimento realizado por " + AUTH.nome + " em " + dataBR(hoje()) + ".");
+  return t.join(" ");
+}
+
+function minusc1(str){ return String(str||"").charAt(0).toLowerCase() + String(str||"").slice(1); }
+
+function condutaResumo(classe, extras){
+  var base = minusc1(TX_NOME[classe] || "esquema a definir");
+  var ex = (extras || []).map(function(k){
+    return k === "roflumilaste" ? "roflumilaste 500 mcg/dia" : "azitromicina 500 mg três vezes por semana";
+  });
+  return base + (ex.length ? ", com associação de " + ex.join(" e ") : "") +
+    ", mantido salbutamol de resgate se necessário";
+}
+/* nominalização: evita problema de concordância no texto corrido */
+var ACAO_TXT = { inicial:"início de", manter:"manutenção de", escalonar:"escalonamento para" };
+
+var PRAZO_TXT = {"4s":"4 semanas","3m":"3 meses","6m":"6 meses","antes":"retorno antecipado / individualizado"};
+function prazoAtual(){ return PRAZO_TXT[S.fup.prazo] || null; }
+
+/* ---------- bloco de texto copiável ---------- */
+var _txtId = 0;
+function blocoTexto(titulo, rotuloBotao, texto, prosa){
+  var id = "txt" + (++_txtId);
+  return '<div class="txtblock"><div class="txtblock-h"><span class="t">' + titulo + '</span>' +
+    '<button type="button" class="btn-copy" data-copy="' + id + '">' + rotuloBotao + '</button></div>' +
+    '<pre id="' + id + '"' + (prosa ? ' class="prosa"' : '') + '>' + esc(texto) + '</pre></div>';
+}
+function copiarTexto(btn){
+  var alvo = document.getElementById(btn.getAttribute("data-copy"));
+  if(!alvo) return;
+  var txt = alvo.textContent, feito = function(){
+    var antes = btn.textContent;
+    btn.textContent = "Copiado";
+    btn.classList.add("ok");
+    setTimeout(function(){ btn.textContent = antes; btn.classList.remove("ok"); }, 1800);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(feito, function(){ copiaFallback(txt, feito); });
+  } else copiaFallback(txt, feito);
+}
+function copiaFallback(txt, cb){
+  var ta = document.createElement("textarea");
+  ta.value = txt;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); cb(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
 /* ============================================================
    6. TELAS
    ============================================================ */
 var T = {};   /* registro de telas */
 
 /* ---------- início ---------- */
-T.home = {
-  step:0, wide:true, semNav:true,
-  render:function(){
-    var temPac = !!S.paciente.nome;
-    var c = temPac ? classificacao() : null;
-    var h = '<section class="card">';
-    h += '<div class="eyebrow">Apoio à decisão</div>';
-    h += '<h1 class="q-title">Manejo da DPOC segundo a estratégia GOLD</h1>';
-    h += '<p class="q-help">Avaliação inicial, classificação espirométrica e ABE, definição de objetivos, escolha do tratamento, reavaliação de resposta, ajuste farmacológico, manejo de exacerbação e plano de acompanhamento.</p>';
-    h += '<div class="home-list">';
-    if(temPac){
-      h += '<button class="home-card" data-go="continuar"><span class="ic">5</span><span><h3>Registrar retorno de ' + esc(S.paciente.nome) + '</h3>' +
-           '<p>Reavaliação (Etapa 5) com os dados do paciente já carregados' + (c && c.grau ? ' · último registro: ' + esc(c.rotulo) : '') + '</p></span><span class="arrow">›</span></button>';
-      h += '<button class="home-card" data-go="revisar"><span class="ic">2</span><span><h3>Revisar avaliação inicial</h3>' +
-           '<p>Voltar às etapas 1 a 4 e corrigir ou completar os dados basais</p></span><span class="arrow">›</span></button>';
-    }
-    h += '<button class="home-card" data-go="novo"><span class="ic">1</span><span><h3>' + (temPac ? 'Nova avaliação (outro paciente)' : 'Iniciar avaliação') + '</h3>' +
-         '<p>Etapa 1 — anamnese, mMRC, CAT, espirometria e histórico de exacerbações</p></span><span class="arrow">›</span></button>';
-    h += '<button class="home-card alert" data-go="exac"><span class="ic">8</span><span><h3>Exacerbação aguda</h3>' +
-         '<p>Classificação de gravidade e conduta imediata — acessível a qualquer momento</p></span><span class="arrow">›</span></button>';
-    h += '</div>';
-    if(S.visitas.length){
-      h += '<div class="sect-label" style="margin-top:26px">Histórico do paciente</div>';
-      h += '<ul class="timeline">' + S.visitas.slice().reverse().map(function(v){
-        return '<li><span class="dt">' + dataBR(v.data) + '</span><span><b>' + esc(v.titulo) + '</b>' +
-               ' · CAT ' + (v.cat==null?"—":v.cat) + ' · mMRC ' + (v.mmrc==null?"—":v.mmrc) +
-               ' · ' + esc(v.esquema) + '</span></li>';
-      }).join("") + '</ul>';
-      h += '<div class="navbar"><button class="btn btn-quiet" data-go="apagar">Apagar dados deste paciente</button></div>';
-    }
-    h += '</section>';
-    return h;
-  }
-};
-
 /* ---------- ETAPA 1 ---------- */
 T.nome = {
   step:1, titulo:"Identificação do paciente", ajuda:"Os dados ficam apenas neste navegador e podem ser apagados a qualquer momento.",
@@ -1115,20 +1621,31 @@ T.fev1 = {
   step:1, titulo:"Espirometria — VEF₁ pós-broncodilatador",
   ajuda:"O diagnóstico de DPOC exige VEF₁/CVF pós-broncodilatador < 0,70. O percentual do previsto define o grau GOLD 1 a 4.",
   render:function(){
-    var h = campoNum("base.fev1","VEF₁ pós-broncodilatador","% do previsto","Ex.: 62");
-    var v = num(S.base.fev1), g = grauGold(v);
-    if(g){
-      h += '<div class="calc"><span class="k">Grau espirométrico</span><span class="v">GOLD ' + g + '</span><span class="u">' + GRAU_NOME[g].toLowerCase() + ' · ' + GRAU_FAIXA[g] + '</span></div>';
+    var pend = semEspirometria();
+    var h = optCheck("base.semEspiro","Paciente ainda não realizou espirometria",
+      "A classificação por grupo (A, B ou E) não depende do VEF₁ — o fluxo segue normalmente e o grau fica pendente até o exame.");
+    h += '<div style="margin-top:18px">';
+    if(pend){
+      h += '<div class="note warn"><b>Grau espirométrico pendente.</b> O exame será solicitado nesta consulta e o grau GOLD 1–4 será definido no retorno. A conduta farmacológica inicial pode ser decidida pelo grupo ABE, que depende apenas de sintomas e exacerbações.</div>';
+    } else {
+      h += campoNum("base.fev1","VEF₁ pós-broncodilatador","% do previsto","Ex.: 62");
+      var v = num(S.base.fev1), g = grauGold(v);
+      if(g){
+        h += '<div class="calc"><span class="k">Grau espirométrico</span><span class="v">GOLD ' + g + '</span><span class="u">' + GRAU_NOME[g].toLowerCase() + ' · ' + GRAU_FAIXA[g] + '</span></div>';
+      }
+      h += '<div class="note" style="margin-top:14px">GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%</div>';
     }
-    h += '<div class="note" style="margin-top:14px">GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%</div>';
+    h += '</div>';
     return h;
   },
   valid:function(){
+    if(semEspirometria()) return true;
     var v = num(S.base.fev1);
-    if(v==null) return "Informe o VEF₁ pós-broncodilatador em % do previsto.";
+    if(v==null) return "Informe o VEF₁ pós-broncodilatador em % do previsto, ou marque que a espirometria ainda não foi realizada.";
     if(v<=0 || v>150) return "Valor fora da faixa plausível (0–150%).";
     return true;
-  }
+  },
+  commit:function(){ if(semEspirometria()){ S.base.fev1 = ""; save(); } }
 };
 T.exac = {
   step:1, titulo:"Exacerbações nos últimos 12 meses",
@@ -1149,7 +1666,8 @@ T.exac = {
     if(num(S.base.exMod)==null || num(S.base.exSev)==null) return "Informe os dois valores (use 0 quando não houver).";
     if(num(S.base.exMod)<0 || num(S.base.exSev)<0) return "Valores não podem ser negativos.";
     return true;
-  }
+  },
+  commit:function(){ persistirPaciente(); }
 };
 
 /* ---------- ETAPA 2 — classificação ---------- */
@@ -1163,15 +1681,16 @@ T.classif = {
       ["Idade", (num(S.paciente.idade)!=null ? num(S.paciente.idade) + " anos" : "—")],
       ["Tabagismo", S.paciente.fumo==="nunca" ? "Nunca fumou" : (S.paciente.fumo==="ex" ? "Ex-fumante" : "Fumante ativo")],
       ["Carga tabágica", m==null ? "—" : n1(m) + " maços-ano"],
-      ["VEF₁ pós-BD", c.fev1==null ? "—" : n1(c.fev1) + "%"],
+      ["VEF₁ pós-BD", c.pendente ? "espirometria pendente" : (c.fev1==null ? "—" : n1(c.fev1) + "%")],
       ["CAT total", (c.cat==null?"—":c.cat) + " / 40"],
       ["mMRC", c.mmrc==null ? "—" : "Grau " + c.mmrc],
+      ["Grau espirométrico", c.pendente ? "pendente" : (c.grau ? "GOLD " + c.grau : "—")],
       ["Exacerbações moderadas", c.exMod + " em 12 meses"],
       ["Exacerbações graves", c.exSev + " em 12 meses"]
     ]);
 
     var tags = '<div class="tags">' +
-      '<span class="tag accent">GOLD ' + c.grau + ' · ' + GRAU_NOME[c.grau] + '</span>' +
+      '<span class="tag ' + (c.pendente ? "warn" : "accent") + '">' + (c.pendente ? "Grau espirométrico pendente" : "GOLD " + c.grau + " · " + GRAU_NOME[c.grau]) + '</span>' +
       '<span class="tag ' + (c.grupo==="E"?"danger":(c.grupo==="B"?"warn":"ok")) + '">Grupo ' + c.grupo + '</span>' +
       '<span class="tag">' + (c.cat>=10 || c.mmrc>=2 ? "Sintomático" : "Pouco sintomático") + '</span>' +
       '</div>';
@@ -1179,10 +1698,12 @@ T.classif = {
     var vered = '<div class="verdict"><div class="big">' + c.rotulo + '</div>' +
       '<div class="sub">' + c.frase.charAt(0).toUpperCase() + c.frase.slice(1) + '.</div>' + tags + '</div>';
 
-    var comoGrau = '<div class="sect-label">Como o grau foi definido</div>' + listaRx([
-      ["VEF₁ pós-broncodilatador de <b>" + n1(c.fev1) + "%</b> do previsto → <b>GOLD " + c.grau + "</b> (" + GRAU_FAIXA[c.grau] + ").",1],
-      ["Escala: GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%.",0]
-    ]);
+    var comoGrau = '<div class="sect-label">' + (c.pendente ? "Grau espirométrico" : "Como o grau foi definido") + '</div>' + listaRx(
+      c.pendente
+      ? [["<b>Pendente</b> — espirometria ainda não realizada. <b>Solicitar espirometria com prova broncodilatadora</b> para confirmar o diagnóstico (VEF₁/CVF pós-BD &lt; 0,70) e definir o grau GOLD 1–4.",1],
+         ["O grupo ABE e a conduta farmacológica inicial não dependem do VEF₁ — o atendimento segue normalmente.",0]]
+      : [["VEF₁ pós-broncodilatador de <b>" + n1(c.fev1) + "%</b> do previsto → <b>GOLD " + c.grau + "</b> (" + GRAU_FAIXA[c.grau] + ").",1],
+         ["Escala: GOLD 1 ≥ 80% · GOLD 2 = 50–79% · GOLD 3 = 30–49% · GOLD 4 &lt; 30%.",0]]);
     var itensGrupo = [];
     if(c.grupo === "E"){
       itensGrupo.push(["<b>" + c.exMod + " exacerbação(ões) moderada(s)</b> e <b>" + c.exSev + " grave(s)</b> no último ano → critério de <b>Grupo E</b> (≥ 2 moderadas ou ≥ 1 com hospitalização).",1]);
@@ -1268,7 +1789,7 @@ T.plano = {
       ["Paciente", esc(S.paciente.nome)],
       ["Classificação", c.rotulo],
       ["CAT / mMRC", c.cat + " · grau " + c.mmrc],
-      ["VEF₁ pós-BD", n1(c.fev1) + "%"],
+      ["VEF₁ pós-BD", c.pendente ? "pendente" : n1(c.fev1) + "%"],
       ["Exacerbações (12 m)", c.exMod + " mod. · " + c.exSev + " grave(s)"],
       ["Eosinófilos", r.eos==null ? "não disponível" : r.eos + " células/µL"]
     ]);
@@ -1293,8 +1814,10 @@ T.plano = {
     var dir = painel("Conduta", vered + farmaco + naoFarma, true);
     var obs = r.obs.length ? '<div class="note accent" style="margin-top:16px">' + r.obs.join(" ") + '</div>' : "";
     var rodape = '<div class="note" style="margin-top:16px">Registrar em prontuário o dispositivo escolhido, a demonstração da técnica e a data da reavaliação. Toda mudança de esquema deve ser reavaliada em <b>4 semanas</b>.</div>';
+    var rx = '<div style="margin-top:16px">' +
+      blocoTexto("Prescrição", "Copiar prescrição", textoPrescricao(r.classe, [], prazoAtual())) + '</div>';
 
-    return '<div class="result-grid">' + lado + '<div>' + dir + obs + rodape + '</div></div>';
+    return '<div class="result-grid">' + lado + '<div>' + dir + obs + rodape + '</div></div>' + rx;
   },
   commit:function(){
     var c = classificacao(), r = tratamentoInicial(c);
@@ -1304,7 +1827,7 @@ T.plano = {
     registrarVisita({
       tipo:"inicial", titulo:"Consulta inicial", cat:c.cat, mmrc:c.mmrc,
       exMod:c.exMod, exSev:c.exSev, grau:c.grau, grupo:c.grupo,
-      tx:r.classe, esquema:r.esquema
+      tx:r.classe, esquema:r.esquema, add:[], mudou:true, semEspiro:!!S.base.semEspiro
     });
   }
 };
@@ -1502,7 +2025,7 @@ T.ajuste = {
       ["mMRC (ant. → atual)", (a.ref.mmrc==null?"—":a.ref.mmrc) + " → " + (a.mmrcNovo==null?"—":a.mmrcNovo)],
       ["Exacerbações no intervalo", a.exMod + " mod. · " + a.exSev + " grave(s)"],
       ["Eosinófilos", p.eos==null ? "não disponível" : p.eos + " células/µL"],
-      ["VEF₁ pós-BD", c.fev1==null ? "—" : n1(c.fev1) + "%"]
+      ["VEF₁ pós-BD", c.pendente ? "pendente" : (c.fev1==null ? "—" : n1(c.fev1) + "%")]
     ]), true);
 
     var antes = painel("Antes de escalonar — sempre",
@@ -1522,8 +2045,11 @@ T.ajuste = {
 
     var rodape = '<div class="note" style="margin-top:16px">Toda mudança de esquema exige <b>reavaliação em 4 semanas</b> com CAT e mMRC. Se não houver benefício, o passo é <b>voltar ao esquema anterior</b> — escalonar sem reavaliar é o erro mais comum do seguimento.</div>';
 
+    var rx = '<div style="margin-top:16px">' +
+      blocoTexto("Prescrição", "Copiar prescrição", textoPrescricao(p.novoEsquema, p.add, prazoAtual())) + '</div>';
+
     return '<div class="result-grid">' + '<div>' + esq + '<div style="margin-top:16px">' + antes + '</div></div>' +
-      '<div>' + dir + rodape + '</div></div>';
+      '<div>' + dir + rodape + '</div></div>' + rx;
   },
   commit:function(){
     var p = planoAjuste(), c = classificacao();
@@ -1533,7 +2059,8 @@ T.ajuste = {
     registrarVisita({
       tipo:"retorno", titulo:"Consulta de retorno", cat:p.a.catNovo, mmrc:p.a.mmrcNovo,
       exMod:p.a.exMod, exSev:p.a.exSev, grau:c.grau, grupo:c.grupo,
-      tx:p.novoEsquema, esquema:TX_NOME[p.novoEsquema]
+      tx:p.novoEsquema, esquema:TX_NOME[p.novoEsquema],
+      add:p.add.slice(), mudou:(p.novoEsquema !== p.txAtual || p.add.length > 0), semEspiro:!!S.base.semEspiro
     });
   }
 };
@@ -1608,7 +2135,7 @@ T.exPlano = {
       ["Purulência aumentada", p.pur ? "sim" : "não"],
       ["Volume do escarro", p.vol ? "aumentado" : "sem aumento"],
       ["Dispneia", p.disp ? "aumentada" : "sem aumento"],
-      ["VEF₁ basal", p.fev1==null ? "—" : n1(p.fev1) + "%"]
+      ["VEF₁ basal", semEspirometria() ? "pendente" : (p.fev1==null ? "—" : n1(p.fev1) + "%")]
     ]), true);
     if(p.graves.length){
       esq += '<div style="margin-top:16px">' + painel("Sinais presentes",
@@ -1655,7 +2182,10 @@ T.exPlano = {
         ["Entregar <b>plano de ação escrito</b> para reconhecimento precoce do próximo evento.",1]
       ]) + '</div>', true);
 
-    return '<div class="result-grid">' + esq + dir + '</div>';
+    var rx = '<div style="margin-top:16px">' +
+      blocoTexto("Prescrição da exacerbação", "Copiar prescrição", textoPrescricaoExacerbacao()) + '</div>';
+
+    return '<div class="result-grid">' + esq + dir + '</div>' + rx;
   },
   commit:function(){ S.feitas[8] = true; save(); }
 };
@@ -1692,45 +2222,68 @@ T.fupCheck = {
   valid:function(){ return true; }
 };
 T.fupFim = {
-  step:9, wide:true, titulo:"Plano de acompanhamento", semNav:true,
+  step:9, wide:true, titulo:"Encerramento do atendimento", semNav:true,
   render:function(){
     var c = classificacao();
     var v = ultimaVisita();
-    var prazoTxt = {"4s":"4 semanas","3m":"3 meses","6m":"6 meses","antes":"retorno antecipado / individualizado"}[S.fup.prazo] || "—";
-    var esquema = v ? v.esquema : (S.tx.recomendado ? TX_NOME[S.tx.recomendado] : "—");
-
-    var esq = painel("Registro da consulta", dl([
-      ["Paciente", esc(S.paciente.nome)],
-      ["Idade", (num(S.paciente.idade)!=null ? num(S.paciente.idade) + " anos" : "—")],
-      ["Data", dataBR(v ? v.data : hoje())],
-      ["Classificação", c.rotulo],
-      ["CAT / mMRC", (v && v.cat!=null ? v.cat : (c.cat==null?"—":c.cat)) + " · grau " + (v && v.mmrc!=null ? v.mmrc : (c.mmrc==null?"—":c.mmrc))],
-      ["VEF₁ pós-BD", c.fev1==null?"—":n1(c.fev1) + "%"],
-      ["Esquema definido", esquema],
-      ["Retorno", prazoTxt]
-    ]), true);
+    var prazoTxt = prazoAtual() || "a definir";
+    var ret = (S.nav.modo === "reaval");
+    var classe = (v && v.tx) || S.tx.recomendado || "outro";
+    var extras = (v && v.add) || [];
+    var esquema = (v && v.esquema) || TX_NOME[classe] || "—";
+    var acao = !ret ? ACAO_TXT.inicial : ((v && v.mudou) ? ACAO_TXT.escalonar : ACAO_TXT.manter);
+    var conduta = acao + " " + condutaResumo(classe, extras);
 
     var pend = CHECKLIST.filter(function(x){ return !S.fup.check[x[0]]; });
     var feitos = CHECKLIST.filter(function(x){ return !!S.fup.check[x[0]]; });
 
-    var dir = painel("Plano",
-      '<div class="verdict" style="padding:0 0 16px"><div class="big">Retorno em ' + prazoTxt + '</div>' +
-      '<div class="sub">Esquema em uso: <b>' + esc(esquema) + '</b>.</div>' +
-      '<div class="tags"><span class="tag accent">' + c.rotulo + '</span><span class="tag">' + feitos.length + '/' + CHECKLIST.length + ' itens revisados</span></div></div>' +
-      (pend.length ? '<div class="sect-label">Pendências para o próximo retorno</div>' + listaRx(pend.map(function(x){ return ['<b>' + x[1] + '.</b> ' + x[2], 1]; })) : '<div class="note ok">Todos os itens do checklist foram revisados nesta consulta.</div>') +
-      (feitos.length ? '<div class="sect-label">Revisados hoje</div>' + listaRx(feitos.map(function(x){ return [x[1], 0]; })) : ""));
+    var esq = '<div>' + painel("Registro do atendimento", dl([
+      ["Paciente", esc(S.paciente.nome)],
+      ["Idade", (num(S.paciente.idade)!=null ? num(S.paciente.idade) + " anos" : "—")],
+      ["Data", dataBR(v ? v.data : hoje())],
+      ["Tipo", ret ? "Consulta de retorno" : "Consulta inicial"],
+      ["Classificação", c.rotulo],
+      ["CAT / mMRC", (v && v.cat!=null ? v.cat : (c.cat==null?"—":c.cat)) + " · grau " + (v && v.mmrc!=null ? v.mmrc : (c.mmrc==null?"—":c.mmrc))],
+      ["VEF₁ pós-BD", c.pendente ? "pendente" : (c.fev1==null ? "—" : n1(c.fev1) + "%")],
+      ["Esquema definido", esquema],
+      ["Retorno", prazoTxt]
+    ]), true) +
+    (pend.length
+      ? '<div style="margin-top:16px">' + painel("Pendências para o próximo retorno",
+          listaRx(pend.map(function(x){ return ['<b>' + x[1] + '.</b> ' + x[2], 1]; }))) + '</div>'
+      : '<div class="note ok" style="margin-top:16px">Todos os ' + CHECKLIST.length + ' itens do checklist foram revisados nesta consulta.</div>') +
+    '</div>';
+
+    var orient = orientacoesPaciente(prazoAtual());
+    var avisoEspiro = c.pendente
+      ? '<div class="note warn" style="margin-bottom:14px"><b>Solicitar espirometria com prova broncodilatadora.</b> O paciente ainda não realizou o exame; ele é necessário para confirmar o diagnóstico de DPOC e definir o grau GOLD 1–4. Entregar o pedido nesta consulta e trazer o resultado no retorno.</div>'
+      : "";
+
+    var dir = painel("Orientações ao paciente",
+      avisoEspiro +
+      '<ul class="orient">' + orient.map(function(x){
+        return '<li' + (x[1] ? ' class="alerta"' : '') + '><span class="m"></span><span>' + x[0] + '</span></li>';
+      }).join("") + '</ul>');
+
+    var rxTxt = textoPrescricao(classe, extras, prazoAtual());
+    var evolucao = textoProntuario({ tipo: ret ? "retorno" : "inicial", prazo: prazoTxt, condutaTxt: conduta });
+
+    var blocos = '<div style="margin-top:16px">' +
+      blocoTexto("Prescrição", "Copiar prescrição", rxTxt) +
+      blocoTexto("Evolução para o prontuário", "Copiar para prontuário", evolucao, true) +
+      '</div>';
 
     var acoes = '<div class="navbar no-print">' +
       '<button class="btn btn-secondary" data-act="voltar">Voltar</button>' +
       '<div class="right">' +
       '<button class="btn btn-quiet" data-act="imprimir">Imprimir / PDF</button>' +
-      '<button class="btn btn-secondary" data-go="home">Início</button>' +
-      '<button class="btn btn-primary" data-go="retorno">Registrar retorno</button>' +
+      '<button class="btn btn-secondary" data-go="pacientes">Sair sem encerrar</button>' +
+      '<button class="btn btn-primary" data-go="encerrar">Encerrar atendimento</button>' +
       '</div></div>';
 
-    var nota = '<div class="note" style="margin-top:16px">"Registrar retorno" abre a <b>Etapa 5</b> com os dados deste paciente já carregados, para a próxima reavaliação.</div>';
+    var nota = '<div class="note" style="margin-top:16px">"Encerrar atendimento" grava esta consulta no histórico do paciente e volta para a lista de pacientes. Para a próxima reavaliação, abra o paciente na lista — ele reabre direto na <b>Etapa 5</b>.</div>';
 
-    return '<div class="result-grid">' + esq + '<div>' + dir + nota + '</div></div>' + acoes;
+    return '<div class="result-grid">' + esq + dir + '</div>' + blocos + nota + acoes;
   },
   commit:function(){
     if(S.visitas.length){
@@ -1742,11 +2295,110 @@ T.fupFim = {
   }
 };
 
+/* ---------- LOGIN / PERFIL DO PROFISSIONAL ---------- */
+T.login = {
+  step:0, semNav:true, semTrilha:true,
+  render:function(){
+    var criar = UI.aba === "criar";
+    var h = '<div class="auth"><section class="card">';
+    h += '<div class="eyebrow">DPOC Clínico</div>';
+    h += '<h1>' + (criar ? "Criar perfil profissional" : "Entrar") + '</h1>';
+    h += '<p class="lead">Cada profissional tem a sua própria lista de pacientes neste computador.</p>';
+    h += '<div class="tabs">' +
+      '<button type="button" class="' + (criar?"":"on") + '" data-go="aba" data-id="entrar">Entrar</button>' +
+      '<button type="button" class="' + (criar?"on":"") + '" data-go="aba" data-id="criar">Criar perfil</button>' +
+      '</div>';
+    if(criar) h += campoUI("form.nome","Nome do profissional","text","Ex.: Dra. Ana Martins");
+    h += campoUI("form.user","Usuário","text","Ex.: ana.martins");
+    h += campoUI("form.senha","Senha","password","••••••");
+    if(criar) h += campoUI("form.senha2","Repetir a senha","password","••••••");
+    if(UI.authErr) h += '<div class="err on" style="margin-top:12px">' + esc(UI.authErr) + '</div>';
+    h += '<div class="navbar"><button class="btn btn-primary" style="width:100%" data-go="' + (criar?"criar":"entrar") + '">' +
+         (criar ? "Criar perfil e entrar" : "Entrar") + '</button></div>';
+    h += '<div class="auth-foot"><b>Como funciona este login.</b> Este é um <b>perfil local</b>: usuário e senha ficam guardados apenas neste navegador, ' +
+         'e servem para separar os pacientes de profissionais que dividem o mesmo computador. Não há servidor validando a senha, os dados ' +
+         'não sincronizam entre dispositivos e quem tiver acesso a este navegador pode alcançar os dados armazenados nele. ' +
+         'Não use para armazenar dados que exijam sigilo garantido por sistema — para isso, a ferramenta precisa ser conectada a um serviço ' +
+         'de autenticação e banco de dados (Firebase, Supabase), o que o código já prevê.</div>';
+    h += '</section></div>';
+    return h;
+  }
+};
+
+/* ---------- BANCO DE PACIENTES ---------- */
+T.pacientes = {
+  step:0, semNav:true, lista:true,
+  render:function(){
+    var busca = (UI.busca || "").trim().toLowerCase();
+    var lista = PACIENTES.filter(function(p){
+      return !busca || String(p.nome||"").toLowerCase().indexOf(busca) >= 0;
+    });
+
+    var h = '<section class="card">';
+    h += '<div class="eyebrow">Banco de pacientes</div>';
+    h += '<h1 class="q-title">Pacientes</h1>';
+    h += '<p class="q-help">' + (PACIENTES.length
+      ? plural(PACIENTES.length, "paciente cadastrado", "pacientes cadastrados") + " neste perfil. Abra um paciente para registrar o retorno (Etapa 5) ou cadastre um novo."
+      : "Nenhum paciente cadastrado ainda neste perfil. Comece cadastrando o primeiro atendimento.") + '</p>';
+
+    if(UI.msg) h += '<div class="note ok" style="margin-top:16px">' + esc(UI.msg) + '</div>';
+
+    h += '<div class="navbar" style="margin-top:18px"><button class="btn btn-primary" data-go="novo">Cadastrar novo paciente</button>' +
+         '<div class="right"><button class="btn btn-secondary" data-go="exac">Exacerbação aguda</button></div></div>';
+
+    if(PACIENTES.length){
+      h += '<div class="search"><input type="text" data-ui="busca" value="' + esc(UI.busca) + '" placeholder="Buscar paciente pelo nome" autocomplete="off"></div>';
+      h += '<div class="plist">';
+      if(!lista.length){
+        h += '<div class="empty">Nenhum paciente encontrado para "' + esc(UI.busca) + '".</div>';
+      }
+      lista.forEach(function(p){
+        var r = p.resumo || {};
+        var meta = [];
+        meta.push(r.classificacao || "sem classificação");
+        meta.push(r.ultimoAtendimento ? "último atendimento em " + dataBR(r.ultimoAtendimento) : "sem atendimento encerrado");
+        if(r.esquema) meta.push(esc(r.esquema));
+        var ini = String(p.nome||"?").trim().split(/\s+/).map(function(x){ return x[0]; }).slice(0,2).join("").toUpperCase();
+        h += '<div class="prow"><span class="av">' + esc(ini) + '</span>' +
+          '<span class="info"><span class="nm">' + esc(p.nome) + '</span>' +
+          '<span class="meta">' + meta.join(" · ") + '</span></span>' +
+          '<span class="acts">' +
+          '<button type="button" class="btn-sm primary" data-go="abrir" data-id="' + p.id + '">' +
+          ((p.atendimentos||[]).length ? "Registrar retorno" : "Continuar cadastro") + '</button>' +
+          '<button type="button" class="btn-sm" data-go="hist" data-id="' + p.id + '">Histórico</button>' +
+          '<button type="button" class="btn-sm danger" data-go="excluir" data-id="' + p.id + '">Excluir</button>' +
+          '</span></div>';
+        if(UI.aberto === p.id){
+          var ats = (p.atendimentos || []).slice().reverse();
+          h += '<div class="hist">';
+          if(!ats.length) h += '<div class="empty" style="padding:16px 0;text-align:left">Nenhum atendimento encerrado para este paciente.</div>';
+          else {
+            h += '<table><tbody>' + ats.map(function(a){
+              return '<tr><td class="d">' + dataBR(a.data) + '</td>' +
+                '<td><b>' + esc(a.titulo || "Atendimento") + '</b> — ' + esc(a.esquema || "—") +
+                '<br><span style="color:var(--ink-3)">CAT ' + (a.cat==null?"—":a.cat) + ' · mMRC ' + (a.mmrc==null?"—":a.mmrc) +
+                ' · ' + (a.grau ? "GOLD " + a.grau : "grau pendente") + ", Grupo " + (a.grupo||"—") +
+                (a.prazo ? ' · retorno em ' + (PRAZO_TXT[a.prazo]||a.prazo) : "") + '</span></td>' +
+                '<td style="text-align:right">' + (a.prontuario
+                  ? '<button type="button" class="btn-sm" data-copytxt="' + p.id + '|' + a.id + '">Copiar evolução</button>' : '') + '</td></tr>';
+            }).join("") + '</tbody></table>';
+          }
+          h += '</div>';
+        }
+      });
+      h += '</div>';
+    }
+    h += '</section>';
+    return h;
+  }
+};
+
 /* ============================================================
    7. FLUXOS E MOTOR DO WIZARD
    ============================================================ */
 var FLOW = {
-  home:   ["home"],
+  login:  ["login"],
+  pacientes:["pacientes"],
   inicial:["nome","idade","fumo","mmrc","cat0","cat1","cat2","cat3","cat4","cat5","cat6","cat7",
            "fev1","exac","classif","objetivos","eos","plano","fupPrazo","fupCheck","fupFim"],
   reaval: ["reMmrc","reCat0","reCat1","reCat2","reCat3","reCat4","reCat5","reCat6","reCat7",
@@ -1759,15 +2411,19 @@ var ETAPAS = [
 ];
 
 function flow(){ return FLOW[S.nav.modo] || FLOW.home; }
-function tela(){ return T[flow()[S.nav.idx]] || T.home; }
+function tela(){ return T[flow()[S.nav.idx]] || T.pacientes; }
 
 function registrarVisita(d){
   d.data = hoje();
   d.cycle = S.nav.cycle || (S.nav.cycle = Date.now());
   for(var i=0;i<S.visitas.length;i++){
-    if(S.visitas[i].cycle === d.cycle){ S.visitas[i] = d; save(); return; }
+    if(S.visitas[i].cycle === d.cycle){
+      d.id = S.visitas[i].id || uid("a");
+      S.visitas[i] = d; save(); persistirPaciente(); return;
+    }
   }
-  S.visitas.push(d); save();
+  d.id = uid("a");
+  S.visitas.push(d); save(); persistirPaciente();
 }
 function visitaAnterior(){
   for(var i=S.visitas.length-1;i>=0;i--){
@@ -1785,42 +2441,137 @@ function houveMudanca(){
 }
 
 /* ---------- transições ---------- */
-function irHome(){ S.nav.modo = "home"; S.nav.idx = 0; save(); render(); }
+function irPacientes(msg){
+  UI.msg = msg || "";
+  UI.aberto = null;
+  S.nav.modo = "pacientes"; S.nav.idx = 0;
+  save();
+  return recarregarPacientes().then(function(){ render(true); });
+}
+function recarregarPacientes(){
+  if(!AUTH) return Promise.resolve();
+  return DB.listarPacientes().then(function(l){ PACIENTES = l; });
+}
+/* evita descartar em silêncio um atendimento aberto */
+function podeDescartar(){
+  if(!S.paciente.nome) return true;
+  var enc = S.visitas.length && S.visitas[S.visitas.length-1].encerradoEm;
+  if(enc) return true;
+  return window.confirm("O atendimento de " + S.paciente.nome + " não foi encerrado. " +
+    "O que já foi decidido permanece no histórico do paciente, mas o rascunho em andamento será descartado. Continuar?");
+}
 function novoPaciente(){
+  if(!podeDescartar()) return;
   var keep = fresh();
   for(var k in keep) S[k] = keep[k];
   S.nav = { modo:"inicial", idx:0, retomar:null, cycle:Date.now() };
-  save(); render();
+  UI.msg = "";
+  save(); render(true);
+}
+function abrirPaciente(id){
+  if(id !== S.pacienteId && !podeDescartar()) return Promise.resolve();
+  return DB.obterPaciente(id).then(function(pac){
+    if(!pac) return irPacientes("Paciente não encontrado.");
+    carregarPacienteEmS(pac);
+    UI.msg = "";
+    if((pac.atendimentos || []).length) registrarRetorno();
+    else { S.nav = { modo:"inicial", idx:0, retomar:null, cycle:Date.now() }; save(); render(true); }
+  });
+}
+function excluirPaciente(id){
+  var pac = null;
+  for(var i=0;i<PACIENTES.length;i++) if(PACIENTES[i].id === id) pac = PACIENTES[i];
+  if(!window.confirm("Excluir definitivamente " + ((pac && pac.nome) || "este paciente") + " e todo o seu histórico?")) return;
+  DB.excluirPaciente(id).then(function(){
+    if(S.pacienteId === id){ var f = fresh(); for(var k in f) S[k] = f[k]; }
+    irPacientes("Paciente excluído.");
+  });
 }
 function revisarInicial(){
   S.nav.modo = "inicial"; S.nav.idx = 0;
   if(!S.nav.cycle) S.nav.cycle = Date.now();
-  save(); render();
+  save(); render(true);
 }
 function registrarRetorno(){
   S.re = null; S.fup = { prazo:null, check:{} };
   S.nav = { modo:"reaval", idx:0, retomar:null, cycle:Date.now() };
-  reInit(); save(); render();
+  reInit(); save(); render(true);
 }
 function abrirExacerbacao(){
   if(S.nav.modo !== "exacerb") S.nav.retomar = { modo:S.nav.modo, idx:S.nav.idx };
   S.exac = null;
   S.nav.modo = "exacerb"; S.nav.idx = 0;
-  exacInit(); save(); render();
+  exacInit(); save(); render(true);
 }
 function sairExacerbacao(){
   var r = S.nav.retomar;
   S.nav.retomar = null;
-  if(r && r.modo && r.modo !== "exacerb"){ S.nav.modo = r.modo; S.nav.idx = r.idx; }
-  else { S.nav.modo = "home"; S.nav.idx = 0; }
-  save(); render();
+  if(r && r.modo && r.modo !== "exacerb" && r.modo !== "pacientes"){ S.nav.modo = r.modo; S.nav.idx = r.idx; save(); render(true); }
+  else irPacientes();
 }
-function apagarTudo(){
-  if(!window.confirm("Apagar definitivamente os dados de " + (S.paciente.nome || "este paciente") + " deste navegador?")) return;
-  try{ localStorage.removeItem(KEY); }catch(e){}
-  var f = fresh();
-  for(var k in f) S[k] = f[k];
-  save(); render();
+
+/* encerra o atendimento: grava no histórico do paciente e volta à lista */
+function encerrarAtendimento(){
+  var t = T.fupFim;
+  if(t.commit) t.commit();
+  var c = classificacao();
+  var v = ultimaVisita();
+  var ret = (S.nav.modo === "reaval");
+  if(v){
+    var classe = v.tx || S.tx.recomendado || "outro";
+    var extras = v.add || [];
+    var acao = !ret ? ACAO_TXT.inicial : (v.mudou ? ACAO_TXT.escalonar : ACAO_TXT.manter);
+    v.prescricao = textoPrescricao(classe, extras, prazoAtual());
+    v.prontuario = textoProntuario({ tipo: ret ? "retorno" : "inicial", prazo: prazoAtual() || "a definir",
+                                     condutaTxt: acao + " " + condutaResumo(classe, extras) });
+    v.encerradoEm = Date.now();
+    v.profissional = AUTH ? AUTH.nome : null;
+    v.semEspiro = !!S.base.semEspiro;
+  }
+  var nome = S.paciente.nome;
+  save();
+  return persistirPaciente().then(function(){
+    var f = fresh();
+    for(var k in f) S[k] = f[k];
+    return irPacientes("Atendimento de " + nome + " encerrado e salvo no histórico.");
+  });
+}
+
+/* ---------- autenticação ---------- */
+function autenticar(){
+  var criar = UI.aba === "criar";
+  var f = UI.form || {};
+  UI.authErr = "";
+  if(criar && String(f.senha||"") !== String(f.senha2||"")){
+    UI.authErr = "As senhas não conferem."; render(); return;
+  }
+  var pr = criar ? DB.criarConta(f.user, f.senha, f.nome) : DB.entrar(f.user, f.senha);
+  pr.then(function(u){
+    AUTH = u;
+    UI.form = {}; UI.authErr = ""; UI.busca = "";
+    return DB.lerRascunho().then(function(r){
+      var base = fresh();
+      if(r){ for(var k in base) if(!(k in r)) r[k] = base[k]; S = r; }
+      else { for(var k2 in base) S[k2] = base[k2]; }
+      if(!S.nav.cycle) S.nav.cycle = Date.now();
+      if(S.nav.modo === "login" || !FLOW[S.nav.modo]) S.nav.modo = "pacientes";
+      if(S.nav.modo === "exacerb" && !S.exac) S.nav.modo = "pacientes";
+      return recarregarPacientes().then(function(){ render(true); });
+    });
+  }).catch(function(e){
+    UI.authErr = e && e.message ? e.message : "Não foi possível entrar.";
+    render();
+  });
+}
+function sair(){
+  if(S.paciente.nome && !window.confirm("Sair do perfil? O atendimento em andamento de " + S.paciente.nome + " fica salvo como rascunho neste computador.")) return;
+  DB.sair().then(function(){
+    AUTH = null; PACIENTES = [];
+    var f = fresh(); for(var k in f) S[k] = f[k];
+    S.nav.modo = "login";
+    UI = { aba:"entrar", authErr:"", busca:"", aberto:null, msg:"", form:{} };
+    render(true);
+  });
 }
 
 /* ---------- navegação ---------- */
@@ -1845,14 +2596,14 @@ function voltar(){
   while(i >= 0 && pular(f[i])) i--;
   if(i < 0){
     if(S.nav.modo === "exacerb") sairExacerbacao();
-    else irHome();
+    else irPacientes();
     return;
   }
   S.nav.idx = i; save(); render(true);
 }
 function fim(){
   if(S.nav.modo === "exacerb"){ sairExacerbacao(); return; }
-  irHome();
+  irPacientes();
 }
 function irEtapa(n){
   if(n === 8){ abrirExacerbacao(); return; }
@@ -1881,16 +2632,28 @@ function erro(msg){
 function render(scroll){
   var t = tela();
   var modo = S.nav.modo;
+  var logado = !!AUTH && modo !== "login";
 
   /* chip do paciente */
   var chip = $("#chip");
-  if(S.paciente.nome){
-    var c = (num(S.base.fev1)!=null && somaCat(S.base.cat)!=null) ? classificacao() : null;
+  if(logado && S.paciente.nome && modo !== "pacientes"){
+    var c = (somaCat(S.base.cat)!=null && (num(S.base.fev1)!=null || S.base.semEspiro)) ? classificacao() : null;
     chip.innerHTML = '<div class="patient-chip"><strong>' + esc(S.paciente.nome) + '</strong>' +
-      (c && c.grau ? '<span class="sep">·</span><span>' + c.rotulo + '</span>' : '') + '</div>';
+      (c ? '<span class="sep">·</span><span>' + c.rotulo + '</span>' : '') + '</div>';
   } else chip.innerHTML = "";
 
+  /* ações do profissional */
+  var ub = $("#userbox");
+  if(logado){
+    ub.innerHTML = '<span class="user-chip">Profissional: <b>' + esc(AUTH.nome) + '</b></span>' +
+      '<button class="tb-btn alert" type="button" data-go="exac"><span class="longo">Exacerbação aguda</span><span class="curto">Exacerbação</span></button>' +
+      '<button class="tb-btn" type="button" data-go="pacientes">Pacientes</button>' +
+      '<button class="tb-btn ghost" type="button" data-go="sair">Sair</button>';
+  } else ub.innerHTML = "";
+  document.body.classList.toggle("deslogado", !logado);
+
   /* trilha */
+  $(".rail-wrap").style.display = (logado && !t.semTrilha && modo !== "pacientes") ? "" : "none";
   var atual = t.step || 0;
   $("#rail").innerHTML = ETAPAS.map(function(e){
     var cls = "rail-step" + (e[0] === atual ? " active" : (S.feitas[e[0]] ? " done" : ""));
@@ -1904,7 +2667,7 @@ function render(scroll){
 
   /* conteúdo */
   var stage = $("#stage");
-  stage.className = "stage" + (t.wide ? " wide" : "");
+  stage.className = "stage" + (t.wide ? " wide" : "") + (t.lista ? " lista" : "");
 
   var html;
   if(t.step === 0){
@@ -1941,7 +2704,7 @@ function render(scroll){
 
   /* restaura foco após re-render por digitação */
   if(focoPendente){
-    var el = stage.querySelector('[data-path="' + focoPendente + '"]');
+    var el = stage.querySelector(focoPendente);
     if(el){ el.focus(); try{ var v = el.value; el.value = ""; el.value = v; }catch(e){} }
     focoPendente = null;
   }
@@ -1950,7 +2713,7 @@ function render(scroll){
 
 /* ---------- eventos ---------- */
 document.addEventListener("click", function(ev){
-  var el = ev.target.closest ? ev.target.closest("[data-act],[data-go],[data-opt],[data-check],[data-scale],[data-chk],[data-step]") : null;
+  var el = ev.target.closest ? ev.target.closest("[data-act],[data-go],[data-opt],[data-check],[data-scale],[data-chk],[data-step],[data-copy],[data-copytxt]") : null;
   if(!el) return;
 
   if(el.hasAttribute("data-act")){
@@ -1961,13 +2724,36 @@ document.addEventListener("click", function(ev){
     return;
   }
   if(el.hasAttribute("data-go")){
-    var g = el.getAttribute("data-go");
+    var g = el.getAttribute("data-go"), id = el.getAttribute("data-id");
     if(g === "novo") novoPaciente();
     else if(g === "continuar" || g === "retorno") registrarRetorno();
     else if(g === "revisar") revisarInicial();
     else if(g === "exac") abrirExacerbacao();
-    else if(g === "home") irHome();
-    else if(g === "apagar") apagarTudo();
+    else if(g === "pacientes" || g === "home") irPacientes();
+    else if(g === "abrir") abrirPaciente(id);
+    else if(g === "excluir") excluirPaciente(id);
+    else if(g === "hist"){ UI.aberto = (UI.aberto === id ? null : id); render(); }
+    else if(g === "encerrar") encerrarAtendimento();
+    else if(g === "entrar" || g === "criar") autenticar();
+    else if(g === "aba"){ UI.aba = id; UI.authErr = ""; render(); }
+    else if(g === "sair") sair();
+    return;
+  }
+  if(el.hasAttribute("data-copy")){ copiarTexto(el); return; }
+  if(el.hasAttribute("data-copytxt")){
+    var parts = el.getAttribute("data-copytxt").split("|");
+    var pac = null, at = null, i2;
+    for(i2=0;i2<PACIENTES.length;i2++) if(PACIENTES[i2].id === parts[0]) pac = PACIENTES[i2];
+    if(pac) for(i2=0;i2<(pac.atendimentos||[]).length;i2++) if(pac.atendimentos[i2].id === parts[1]) at = pac.atendimentos[i2];
+    if(at && at.prontuario){
+      var tmp = document.createElement("pre");
+      tmp.id = "tmpcopy"; tmp.style.display = "none"; tmp.textContent = at.prontuario;
+      document.body.appendChild(tmp);
+      el.setAttribute("data-copy", "tmpcopy");
+      copiarTexto(el);
+      el.removeAttribute("data-copy");
+      setTimeout(function(){ if(tmp.parentNode) tmp.parentNode.removeChild(tmp); }, 100);
+    }
     return;
   }
   if(el.hasAttribute("data-step")){
@@ -2004,32 +2790,54 @@ document.addEventListener("click", function(ev){
 
 document.addEventListener("input", function(ev){
   var el = ev.target;
-  if(!el.hasAttribute || !el.hasAttribute("data-path")) return;
-  set(el.getAttribute("data-path"), el.value);
-  focoPendente = el.getAttribute("data-path");
-  render();
+  if(!el.hasAttribute) return;
+  if(el.hasAttribute("data-path")){
+    set(el.getAttribute("data-path"), el.value);
+    focoPendente = '[data-path="' + el.getAttribute("data-path") + '"]';
+    render();
+    return;
+  }
+  if(el.hasAttribute("data-ui")){
+    var q = el.getAttribute("data-ui");
+    setUI(q, el.value);
+    if(q === "busca"){ focoPendente = '[data-ui="busca"]'; render(); }
+    return;
+  }
 });
 
 document.addEventListener("keydown", function(ev){
   if(ev.key !== "Enter") return;
   var t = tela();
+  if(S.nav.modo === "login"){ ev.preventDefault(); autenticar(); return; }
   if(t.step === 0 || t.semNav) return;
   if(ev.target && ev.target.tagName === "BUTTON") return;
   ev.preventDefault();
   avancar();
 });
 
-$("#btnExac").addEventListener("click", abrirExacerbacao);
-$("#btnHome").addEventListener("click", irHome);
 $("#refsBtn").addEventListener("click", function(){
   var on = $("#refs").classList.toggle("on");
   this.setAttribute("aria-expanded", on ? "true" : "false");
 });
 
 /* ---------- início ---------- */
-if(!S.nav.cycle) S.nav.cycle = Date.now();
-if(S.nav.modo === "exacerb" && !S.exac) S.nav.modo = "home";
-render();
+UI.form = {};
+DB.usuarioAtual().then(function(u){
+  if(!u){ AUTH = null; S.nav.modo = "login"; render(); return; }
+  AUTH = u;
+  return DB.lerRascunho().then(function(r){
+    var base = fresh();
+    if(r){ for(var k in base) if(!(k in r)) r[k] = base[k]; S = r; }
+    if(!S.nav.cycle) S.nav.cycle = Date.now();
+    if(!FLOW[S.nav.modo] || S.nav.modo === "login") S.nav.modo = "pacientes";
+    if(S.nav.modo === "exacerb" && !S.exac) S.nav.modo = "pacientes";
+    return recarregarPacientes().then(function(){ render(); });
+  });
+}).catch(function(e){
+  AUTH = null; S.nav.modo = "login";
+  UI.authErr = "";
+  render();
+});
 
 })();
 </script>
