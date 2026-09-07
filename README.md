@@ -4,8 +4,10 @@ Ferramenta de apoio à decisão para o manejo da DPOC segundo a estratégia GOLD
 formato *wizard* (uma pergunta ou decisão por tela, com barra de progresso e botão
 de voltar).
 
-Página única, sem backend e sem banco de dados: **`index.html`** com HTML, CSS e
-JavaScript embutidos. Basta abrir o arquivo no navegador.
+Página única: **`index.html`** com HTML, CSS e JavaScript embutidos, sem build e sem servidor
+próprio. Funciona abrindo o arquivo no navegador; para sincronizar os pacientes entre
+dispositivos, dá para conectar a um projeto Firebase (Authentication + Firestore) — ver
+*Como o login funciona*.
 
 ## As 9 etapas
 
@@ -24,7 +26,8 @@ JavaScript embutidos. Basta abrir o arquivo no navegador.
 ## Além do wizard
 
 - **Login por profissional.** Cada profissional entra com usuário e senha e vê apenas os
-  próprios pacientes (ver *Como o login funciona*, abaixo).
+  próprios pacientes. Funciona local (sem configuração) ou com **login e banco reais na nuvem**,
+  sincronizando os pacientes entre computador e celular (ver *Como o login funciona*, abaixo).
 - **Banco de pacientes.** Lista com busca por nome, mostrando última classificação GOLD, data
   do último atendimento e esquema em uso. Abrir um paciente vai direto para a Etapa 5
   (reavaliação) com os dados da última consulta carregados; também dá para ver o histórico de
@@ -55,43 +58,106 @@ JavaScript embutidos. Basta abrir o arquivo no navegador.
 - **Antibiótico na exacerbação:** aumento da purulência associado a aumento do volume
   e/ou piora da dispneia, ou os três sintomas cardinais de Anthonisen.
 
-## Como o login funciona (e como trocar por um login de verdade)
+## Como o login funciona
 
-A versão atual implementa a **Opção A — perfil local**: usuário e senha ficam no
-`localStorage` deste navegador (a senha é guardada como hash SHA-256 com *salt*, nunca em
-texto puro) e servem para **separar os pacientes de profissionais que dividem o mesmo
-computador**. Não há servidor validando nada, os dados **não sincronizam entre dispositivos**
-e quem tiver acesso ao navegador alcança o que está armazenado nele. O próprio app avisa isso
-na tela de login. Serve para uso pessoal e demonstração — não para guardar dados que exijam
-sigilo garantido por sistema.
+O app tem **dois modos**, e ele escolhe sozinho conforme houver ou não uma configuração de nuvem:
 
-Todo acesso a dados passa por um único objeto `DB`, com métodos assíncronos:
+| | Modo local (padrão) | Modo nuvem (Firebase) |
+|---|---|---|
+| Login | usuário e senha guardados no navegador | e-mail e senha de verdade (Firebase Authentication) |
+| Pacientes | só neste navegador | salvos no Firestore, aparecem em qualquer dispositivo |
+| Precisa de configuração | não | sim, uma vez (passo a passo abaixo) |
+| Custo | nenhum | nenhum, dentro do plano gratuito do Firebase |
+
+Em qualquer um dos modos, o **atendimento em andamento** (o rascunho, antes de "Encerrar
+atendimento") fica no navegador do aparelho em que você está digitando — é estado de trabalho,
+não vai para a nuvem a cada tecla.
+
+### Modo local
+
+Usuário e senha ficam no `localStorage` deste navegador (a senha como hash SHA-256 com *salt*,
+nunca em texto puro) e servem para **separar os pacientes de profissionais que dividem o mesmo
+computador**. Não há servidor validando nada, os dados **não sincronizam entre dispositivos** e
+quem tiver acesso ao navegador alcança o que está armazenado nele. Serve para uso pessoal e
+demonstração — não para dados que exijam sigilo garantido por sistema.
+
+### Ligar a sincronização entre dispositivos (Firebase)
+
+Dá para fazer tudo pela tela **"Ativar sincronização entre dispositivos"**, no rodapé da tela de
+login, que traz o mesmo passo a passo. Resumindo:
+
+1. Em **console.firebase.google.com**, entre com sua conta Google e clique em **Criar projeto**.
+   Dê um nome (ex.: `dpoc-clinico`); pode desativar o Google Analytics.
+2. Menu **Criação → Authentication → Vamos começar**, escolha **E-mail/senha** e ative.
+3. Menu **Criação → Firestore Database → Criar banco de dados**, região `southamerica-east1`,
+   iniciando em **modo de produção**.
+4. Aba **Regras** do Firestore: apague o conteúdo, cole o bloco abaixo e clique em **Publicar**.
+   É isto que garante que cada conta leia e escreva apenas os próprios pacientes.
+
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /usuarios/{uid}/{documento=**} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+       }
+     }
+   }
+   ```
+
+5. **Visão geral do projeto → ícone `</>` (Web)**, registre um app com qualquer apelido e copie o
+   bloco `const firebaseConfig = { ... }`.
+6. Cole esse bloco **dentro de `var FIREBASE_CONFIG = { }`**, no início do `<script>` do
+   `index.html`, e publique. Assim todo dispositivo que abrir o endereço já entra no modo nuvem.
+   (Alternativa sem editar o arquivo: colar o bloco na tela "Ativar sincronização" dentro do app —
+   mas aí é preciso repetir em cada dispositivo.)
+
+As chaves do `firebaseConfig` são **públicas por definição** no Firebase para web e podem ir para
+o repositório: quem protege os dados são o Authentication e as regras do passo 4, não o segredo
+da chave.
+
+### Publicar (necessário para o modo nuvem)
+
+Com a sincronização ligada, o site precisa ser aberto por um endereço **https** — abrindo o
+arquivo direto do disco (`file://`) o navegador bloqueia a conexão com o Firebase, e o app avisa
+isso e volta para o modo local. Publicar pelo GitHub Pages resolve: no repositório, **Settings →
+Pages → Source: Deploy from a branch**, escolha a branch e a pasta `/ (root)` e salve. Em poucos
+minutos o site fica em `https://<seu-usuario>.github.io/DPOC/`.
+
+### Migrar os pacientes que já estão no computador
+
+Ao entrar no modo nuvem, se houver pacientes salvos em perfis locais deste navegador, a tela de
+pacientes mostra um aviso com o botão **"Enviar para a nuvem agora"**. A cópia local não é apagada.
+
+### Trocar de serviço
+
+Todo acesso a dados passa por um objeto `DB` com esta interface:
 
 ```
 usuarioAtual()                 criarConta(user, senha, nome)     entrar(user, senha)
 sair()                         listarPacientes()                 obterPaciente(id)
-salvarPaciente(paciente)       excluirPaciente(id)
+salvarPaciente(paciente)       excluirPaciente(id)               redefinirSenha(email)
 lerRascunho()                  salvarRascunho(estado)            limparRascunho()
 ```
 
-Hoje `var DB = DriverLocal;`. Para migrar para a **Opção B — login e banco reais**
-(Firebase Authentication + Firestore, Supabase ou equivalente compatível com hospedagem
-estática), basta escrever um driver com essa mesma interface e trocar essa linha: nenhuma
-tela do wizard precisa mudar. O esqueleto comentado do driver Firebase está no próprio
-arquivo, ao lado do driver local.
+Existem dois drivers no arquivo — `DriverLocal` e `DriverFirebase` — e o app escolhe qual usar no
+início da execução. Para trocar por Supabase ou outro serviço, basta escrever um terceiro driver
+com a mesma interface: nenhuma tela do wizard precisa mudar.
 
 ## Dados
 
-Chaves usadas no `localStorage`, todas com o prefixo `dpoc_clinico`:
+No modo nuvem, cada paciente é um documento em `usuarios/{uid}/pacientes/{idPaciente}` no
+Firestore. No modo local, e para o rascunho do atendimento em qualquer um dos modos, valem estas
+chaves do `localStorage`:
 
 | Chave | Conteúdo |
 |-------|----------|
-| `dpoc_clinico:usuarios` | perfis criados neste navegador (usuário, nome, hash e salt da senha) |
-| `dpoc_clinico:sessao` | id do profissional autenticado no momento |
-| `dpoc_clinico:<idUsuario>:pacientes` | pacientes e o histórico de atendimentos daquele profissional |
-| `dpoc_clinico:<idUsuario>:rascunho` | atendimento em andamento, para retomar após recarregar |
-
-Nada é enviado a servidores.
+| `dpoc_clinico:usuarios` | perfis locais criados neste navegador (usuário, nome, hash e salt da senha) |
+| `dpoc_clinico:sessao` | id do perfil local autenticado no momento |
+| `dpoc_clinico:<idUsuario>:pacientes` | pacientes e histórico de atendimentos daquele perfil local |
+| `dpoc_clinico:<idUsuario>:rascunho` | atendimento em andamento (modo local) |
+| `dpoc_clinico:nuvem:<uid>:rascunho` | atendimento em andamento (modo nuvem) |
+| `dpoc_clinico:firebase` | configuração do projeto, quando colada pela tela do app |
 
 ## Aviso
 

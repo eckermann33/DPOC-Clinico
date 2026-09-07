@@ -136,6 +136,13 @@ a{color:var(--accent-dark)}
 .rail-step.active{color:var(--petrol-900); border-bottom-color:var(--accent)}
 .rail-step.active .n{background:var(--accent); border-color:var(--accent); color:#fff}
 .rail-step.active .lb{font-weight:600}
+.busy{height:2px; background:transparent; overflow:hidden}
+.busy.on{background:var(--accent-soft)}
+.busy.on::after{
+  content:""; display:block; height:100%; width:36%; background:var(--accent);
+  animation:corre 1.05s ease-in-out infinite;
+}
+@keyframes corre{0%{margin-left:-36%}100%{margin-left:100%}}
 .progress{height:2px; background:var(--line)}
 .progress > i{display:block; height:100%; background:var(--accent); transition:width .25s ease}
 
@@ -164,13 +171,13 @@ main{flex:1; width:100%; max-width:1120px; margin:0 auto; padding:26px 20px 44px
 .field:last-child{margin-bottom:0}
 .field > label{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
 .field .sub{font-size:12.5px; color:var(--ink-3); margin-top:5px}
-input[type=text],input[type=number],input[type=password]{
+input[type=text],input[type=number],input[type=password],input[type=email]{
   width:100%; padding:10px 12px; background:var(--surface);
   border:1px solid var(--line-strong); border-radius:var(--r); font-size:15px;
   transition:border-color .12s, box-shadow .12s;
 }
-input[type=text]:hover,input[type=number]:hover,input[type=password]:hover{border-color:#a9b6c0}
-input[type=text]:focus,input[type=number]:focus,input[type=password]:focus{
+input[type=text]:hover,input[type=number]:hover,input[type=password]:hover,input[type=email]:hover{border-color:#a9b6c0}
+input[type=text]:focus,input[type=number]:focus,input[type=password]:focus,input[type=email]:focus{
   outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,116,144,.15);
 }
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -418,6 +425,36 @@ footer{background:var(--surface); border-top:1px solid var(--line); margin-top:a
 .tabs button.on{background:var(--surface); color:var(--petrol-900); box-shadow:var(--shadow-1)}
 .auth-foot{margin-top:18px; font-size:12.5px; color:var(--ink-3); line-height:1.55}
 
+textarea{
+  width:100%; min-height:150px; padding:11px 12px; background:var(--surface);
+  border:1px solid var(--line-strong); border-radius:var(--r);
+  font-family:var(--mono); font-size:12.5px; line-height:1.6; resize:vertical;
+}
+textarea:hover{border-color:#a9b6c0}
+textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,116,144,.15)}
+ol.passos{margin:0; padding:0; list-style:none; counter-reset:passo}
+ol.passos li{
+  counter-increment:passo; position:relative; padding:0 0 14px 34px; font-size:14px; color:var(--ink-2); line-height:1.55;
+}
+ol.passos li::before{
+  content:counter(passo); position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%;
+  background:var(--petrol-700); color:#fff; font-size:11.5px; font-weight:700; display:grid; place-items:center;
+}
+ol.passos li:last-child{padding-bottom:0}
+ol.passos b{color:var(--petrol-900)}
+ol.passos code{
+  font-family:var(--mono); font-size:12.5px; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:4px; padding:1px 5px;
+}
+.modo-linha{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; padding-top:14px;
+  border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-3);
+}
+.modo-linha .dot{width:7px; height:7px; border-radius:50%; background:var(--ok); flex:none}
+.modo-linha .dot.local{background:var(--ink-4)}
+.linkbtn{background:none; border:0; padding:0; font:inherit; font-size:12.5px; font-weight:600; color:var(--accent-dark); cursor:pointer; text-decoration:underline}
+.linkbtn:hover{color:var(--petrol-900)}
+
 /* ---------- barra do usuário ---------- */
 .user-chip{
   display:flex; align-items:center; gap:7px; font-size:12.5px; color:#a9bcc7;
@@ -533,6 +570,7 @@ ul.orient li.alerta .m::after{border-color:var(--warn)}
   <nav class="rail" id="rail" aria-label="Etapas"></nav>
   <div class="progress"><i id="bar" style="width:0%"></i></div>
 </div>
+<div class="busy" id="busy" aria-hidden="true"></div>
 
 <main><div class="stage" id="stage"></div></main>
 
@@ -553,7 +591,7 @@ ul.orient li.alerta .m::after{border-color:var(--warn)}
       <p>GARTLEHNER, G.; HANSEN, R. A.; CARSON, S. S.; LOHR, K. N. Efficacy and safety of inhaled corticosteroids in patients with COPD: a systematic review and meta-analysis of health outcomes. <b>Annals of Family Medicine</b>, v. 4, n. 3, p. 253-262, 2006.</p>
       <p>BRASIL. Ministério da Saúde. Secretaria de Atenção à Saúde. Departamento de Atenção Básica. <b>Doenças respiratórias crônicas</b>. Brasília: Ministério da Saúde, 2010. 160 p. (Série A. Normas e Manuais Técnicos) (Cadernos de Atenção Básica, n. 25).</p>
     </div>
-    <div class="colofon">DPOC Clínico · dados mantidos apenas neste navegador (localStorage), sem envio a servidores.</div>
+    <div class="colofon" id="colofon">DPOC Clínico</div>
   </div>
 </footer>
 
@@ -697,14 +735,191 @@ var DriverLocal = {
   limparRascunho: function(){ lsDel(this._base() + ":rascunho"); return Promise.resolve(); }
 };
 
-/* OPÇÃO B (login e banco reais) — esqueleto para substituição futura:
-   var DriverFirebase = {
-     usuarioAtual(){ return new Promise(r => onAuthStateChanged(auth, u => r(u && {id:u.uid,...}))); },
-     entrar(u,s){ return signInWithEmailAndPassword(auth,u,s).then(...); },
-     listarPacientes(){ return getDocs(collection(db,"usuarios",uid,"pacientes")).then(...); },
-     ...mesma interface...
-   };
-   Depois basta:  var DB = DriverFirebase;                                    */
+
+/* ============================================================
+   1c. OPÇÃO B — LOGIN E BANCO REAIS (Firebase Auth + Firestore)
+   ------------------------------------------------------------
+   Para ligar a sincronização entre dispositivos há dois caminhos,
+   ambos válidos (o passo a passo está no README):
+
+   1) Recomendado — cole a configuração do seu projeto Firebase em
+      FIREBASE_CONFIG abaixo e publique o arquivo. Todos os
+      dispositivos que abrirem o site já entram no modo nuvem.
+   2) Sem editar o arquivo — deixe FIREBASE_CONFIG vazio e use a
+      tela "Ativar sincronização" dentro do app, colando a mesma
+      configuração. Ela fica guardada neste navegador (precisa ser
+      repetida em cada dispositivo).
+
+   Essas chaves são PÚBLICAS por definição no Firebase para web:
+   quem protege os dados são o Authentication e as regras do
+   Firestore (também no README), não o segredo da chave.
+   ============================================================ */
+var FIREBASE_CONFIG = {
+  /* apiKey: "...", authDomain: "...", projectId: "...",
+     storageBucket: "...", messagingSenderId: "...", appId: "..." */
+};
+var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/12.18.0/";
+
+function configNuvem(){
+  if(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) return FIREBASE_CONFIG;
+  var salva = lsGet(NS + ":firebase", null);
+  if(salva && salva.apiKey && salva.projectId) return salva;
+  return null;
+}
+function configEmbutida(){ return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey); }
+
+/* lê a configuração colada do console do Firebase (objeto JS ou JSON) */
+function lerConfigColada(txt){
+  var t = String(txt || "");
+  var i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if(i < 0 || j < i) throw new Error("Não encontrei a configuração. Cole o trecho que começa com { e termina com }.");
+  t = t.slice(i, j + 1);
+  t = t.replace(/\/\/[^\n\r]*/g, "");                       /* comentários */
+  t = t.replace(/'([^']*)'/g, function(m, g){ return JSON.stringify(g); });
+  t = t.replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":'); /* chaves sem aspas */
+  t = t.replace(/,\s*([}\]])/g, "$1");                       /* vírgula sobrando */
+  var cfg;
+  try{ cfg = JSON.parse(t); }
+  catch(e){ throw new Error("A configuração colada não pôde ser lida. Copie o bloco inteiro do console do Firebase, das chaves { até }."); }
+  if(!cfg.apiKey || !cfg.projectId || !cfg.authDomain)
+    throw new Error("Faltam campos na configuração (apiKey, authDomain e projectId são obrigatórios).");
+  return cfg;
+}
+
+var FB = null;   /* módulos e instâncias do Firebase, após carregar */
+
+function carregarFirebase(cfg){
+  /* costura de teste: permite injetar um SDK falso sem rede */
+  if(window.DPOC_FIREBASE_STUB) return Promise.resolve(window.DPOC_FIREBASE_STUB(cfg));
+  return Promise.all([
+    import(FIREBASE_SDK + "firebase-app.js"),
+    import(FIREBASE_SDK + "firebase-auth.js"),
+    import(FIREBASE_SDK + "firebase-firestore.js")
+  ]).then(function(m){
+    var app = m[0].initializeApp(cfg);
+    return { app:app, A:m[1], F:m[2], auth:m[1].getAuth(app), db:m[2].getFirestore(app) };
+  });
+}
+
+var ERRO_FB = {
+  "auth/invalid-email": "E-mail inválido.",
+  "auth/missing-email": "Informe o e-mail.",
+  "auth/user-not-found": "Não existe conta com esse e-mail.",
+  "auth/wrong-password": "Senha incorreta.",
+  "auth/invalid-credential": "E-mail ou senha incorretos.",
+  "auth/invalid-login-credentials": "E-mail ou senha incorretos.",
+  "auth/email-already-in-use": "Já existe uma conta com esse e-mail. Use “Entrar”.",
+  "auth/weak-password": "A senha precisa ter ao menos 6 caracteres.",
+  "auth/missing-password": "Informe a senha.",
+  "auth/too-many-requests": "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.",
+  "auth/network-request-failed": "Sem conexão com o servidor. Verifique a internet.",
+  "auth/operation-not-allowed": "O login por e-mail e senha não está habilitado no projeto Firebase (Authentication → Sign-in method).",
+  "auth/unauthorized-domain": "Este endereço não está na lista de domínios autorizados do projeto Firebase.",
+  "permission-denied": "Sem permissão para acessar estes dados. Confira as regras do Firestore.",
+  "unavailable": "Não foi possível falar com o banco de dados. Verifique a conexão."
+};
+function erroFB(e){
+  var c = e && (e.code || e.message) || "";
+  if(ERRO_FB[c]) return new Error(ERRO_FB[c]);
+  for(var k in ERRO_FB) if(String(c).indexOf(k) >= 0) return new Error(ERRO_FB[k]);
+  return new Error((e && e.message) || "Erro inesperado ao falar com o servidor.");
+}
+
+var DriverFirebase = {
+  id: "firebase",
+  rotulo: "Sincronizado na nuvem",
+  nuvem: true,
+  _u: null,
+
+  usuarioAtual: function(){
+    var self = this;
+    return new Promise(function(res){
+      var pronto = false;
+      var off = FB.A.onAuthStateChanged(FB.auth, function(u){
+        if(pronto) return;
+        pronto = true;
+        if(off) off();
+        self._u = u ? { id:u.uid, user:u.email, nome:u.displayName || u.email } : null;
+        res(self._u);
+      });
+    });
+  },
+  criarConta: function(email, senha, nome){
+    var self = this;
+    return FB.A.createUserWithEmailAndPassword(FB.auth, String(email||"").trim(), senha)
+      .then(function(cred){
+        var n = String(nome||"").trim() || cred.user.email;
+        return FB.A.updateProfile(cred.user, { displayName:n }).then(function(){
+          self._u = { id:cred.user.uid, user:cred.user.email, nome:n };
+          return self._u;
+        });
+      })
+      .catch(function(e){ throw erroFB(e); });
+  },
+  entrar: function(email, senha){
+    var self = this;
+    return FB.A.signInWithEmailAndPassword(FB.auth, String(email||"").trim(), senha)
+      .then(function(cred){
+        self._u = { id:cred.user.uid, user:cred.user.email, nome:cred.user.displayName || cred.user.email };
+        return self._u;
+      })
+      .catch(function(e){ throw erroFB(e); });
+  },
+  redefinirSenha: function(email){
+    return FB.A.sendPasswordResetEmail(FB.auth, String(email||"").trim())
+      .catch(function(e){ throw erroFB(e); });
+  },
+  sair: function(){
+    var self = this;
+    return FB.A.signOut(FB.auth).then(function(){ self._u = null; });
+  },
+
+  _col: function(){
+    if(!this._u) throw new Error("Nenhum profissional autenticado.");
+    return FB.F.collection(FB.db, "usuarios", this._u.id, "pacientes");
+  },
+  listarPacientes: function(){
+    var self = this;
+    return FB.F.getDocs(FB.F.query(self._col(), FB.F.orderBy("atualizadoEm", "desc")))
+      .then(function(snap){
+        var out = [];
+        snap.forEach(function(d){ var v = d.data(); v.id = d.id; out.push(v); });
+        return out;
+      })
+      .catch(function(e){ throw erroFB(e); });
+  },
+  obterPaciente: function(id){
+    var self = this;
+    return FB.F.getDoc(FB.F.doc(FB.db, "usuarios", self._u.id, "pacientes", id))
+      .then(function(d){ if(!d.exists()) return null; var v = d.data(); v.id = d.id; return v; })
+      .catch(function(e){ throw erroFB(e); });
+  },
+  salvarPaciente: function(pac){
+    var self = this;
+    if(!pac.id) pac.id = uid("p");
+    if(!pac.criadoEm) pac.criadoEm = Date.now();
+    pac.atualizadoEm = Date.now();
+    var limpo = JSON.parse(JSON.stringify(pac));   /* Firestore não aceita undefined */
+    delete limpo.id;
+    return FB.F.setDoc(FB.F.doc(FB.db, "usuarios", self._u.id, "pacientes", pac.id), limpo)
+      .then(function(){ return pac; })
+      .catch(function(e){ throw erroFB(e); });
+  },
+  excluirPaciente: function(id){
+    var self = this;
+    return FB.F.deleteDoc(FB.F.doc(FB.db, "usuarios", self._u.id, "pacientes", id))
+      .catch(function(e){ throw erroFB(e); });
+  },
+
+  /* o rascunho do atendimento em andamento é por dispositivo:
+     fica no navegador, não na nuvem (evita escrita a cada tecla) */
+  _rk: function(){ return NS + ":nuvem:" + (this._u ? this._u.id : "anon") + ":rascunho"; },
+  lerRascunho: function(){ return Promise.resolve(lsGet(this._rk(), null)); },
+  salvarRascunho: function(st){ lsSet(this._rk(), st); return Promise.resolve(); },
+  limparRascunho: function(){ lsDel(this._rk()); return Promise.resolve(); }
+};
+
+/* driver ativo — definido no início da execução conforme a configuração */
 var DB = DriverLocal;
 
 /* ============================================================
@@ -2300,27 +2515,124 @@ T.login = {
   step:0, semNav:true, semTrilha:true,
   render:function(){
     var criar = UI.aba === "criar";
+    var nuvem = !!DB.nuvem;
     var h = '<div class="auth"><section class="card">';
     h += '<div class="eyebrow">DPOC Clínico</div>';
-    h += '<h1>' + (criar ? "Criar perfil profissional" : "Entrar") + '</h1>';
-    h += '<p class="lead">Cada profissional tem a sua própria lista de pacientes neste computador.</p>';
+    h += '<h1>' + (criar ? "Criar conta" : "Entrar") + '</h1>';
+    h += '<p class="lead">' + (nuvem
+      ? "Seus pacientes ficam salvos na nuvem e aparecem em qualquer dispositivo em que você entrar com esta conta."
+      : "Cada profissional tem a sua própria lista de pacientes neste computador.") + '</p>';
+
+    if(UI.nuvemErro){
+      h += '<div class="note warn" style="margin-top:16px"><b>Sincronização indisponível.</b> ' + esc(UI.nuvemErro) +
+           ' O app continua funcionando em modo local neste navegador.</div>';
+    }
+    if(UI.msgAuth) h += '<div class="note ok" style="margin-top:16px">' + esc(UI.msgAuth) + '</div>';
+
     h += '<div class="tabs">' +
       '<button type="button" class="' + (criar?"":"on") + '" data-go="aba" data-id="entrar">Entrar</button>' +
-      '<button type="button" class="' + (criar?"on":"") + '" data-go="aba" data-id="criar">Criar perfil</button>' +
+      '<button type="button" class="' + (criar?"on":"") + '" data-go="aba" data-id="criar">' + (nuvem ? "Criar conta" : "Criar perfil") + '</button>' +
       '</div>';
     if(criar) h += campoUI("form.nome","Nome do profissional","text","Ex.: Dra. Ana Martins");
-    h += campoUI("form.user","Usuário","text","Ex.: ana.martins");
+    h += campoUI("form.user", nuvem ? "E-mail" : "Usuário", nuvem ? "email" : "text",
+                 nuvem ? "voce@exemplo.com" : "Ex.: ana.martins");
     h += campoUI("form.senha","Senha","password","••••••");
     if(criar) h += campoUI("form.senha2","Repetir a senha","password","••••••");
     if(UI.authErr) h += '<div class="err on" style="margin-top:12px">' + esc(UI.authErr) + '</div>';
-    h += '<div class="navbar"><button class="btn btn-primary" style="width:100%" data-go="' + (criar?"criar":"entrar") + '">' +
-         (criar ? "Criar perfil e entrar" : "Entrar") + '</button></div>';
-    h += '<div class="auth-foot"><b>Como funciona este login.</b> Este é um <b>perfil local</b>: usuário e senha ficam guardados apenas neste navegador, ' +
-         'e servem para separar os pacientes de profissionais que dividem o mesmo computador. Não há servidor validando a senha, os dados ' +
-         'não sincronizam entre dispositivos e quem tiver acesso a este navegador pode alcançar os dados armazenados nele. ' +
-         'Não use para armazenar dados que exijam sigilo garantido por sistema — para isso, a ferramenta precisa ser conectada a um serviço ' +
-         'de autenticação e banco de dados (Firebase, Supabase), o que o código já prevê.</div>';
+    var pend = !!UI.ocupado;
+    h += '<div class="navbar"><button class="btn btn-primary" style="width:100%" data-go="' + (criar?"criar":"entrar") + '"' +
+         (pend ? ' disabled' : '') + '>' +
+         (pend ? "Entrando…" : (criar ? (nuvem ? "Criar conta e entrar" : "Criar perfil e entrar") : "Entrar")) + '</button></div>';
+    if(nuvem && !criar){
+      h += '<div style="margin-top:12px;text-align:center"><button type="button" class="linkbtn" data-go="resetsenha">Esqueci minha senha</button></div>';
+    }
+
+    h += '<div class="modo-linha"><span class="dot' + (nuvem?"":" local") + '"></span>' +
+      (nuvem ? '<span>Sincronização na nuvem ativa (Firebase)</span>' : '<span>Modo local — dados só neste navegador</span>') +
+      (nuvem
+        ? (configEmbutida() ? "" : '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Alterar configuração</button>')
+        : '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Ativar sincronização entre dispositivos</button>') +
+      '</div>';
+
+    h += '<div class="auth-foot">' + (nuvem
+      ? '<b>Onde ficam os dados.</b> Em um projeto Firebase que é seu: a conta é protegida por e-mail e senha, e as regras do Firestore ' +
+        'permitem que cada conta leia e escreva apenas os próprios pacientes. Ao guardar dados de pacientes reais, você é o responsável ' +
+        'pelo tratamento dessas informações — considere registrar iniciais em vez do nome completo.'
+      : '<b>Como funciona este login.</b> Este é um <b>perfil local</b>: usuário e senha ficam guardados apenas neste navegador, ' +
+        'e servem para separar os pacientes de profissionais que dividem o mesmo computador. Não há servidor validando a senha, os dados ' +
+        'não sincronizam entre dispositivos e quem tiver acesso a este navegador pode alcançar os dados armazenados nele.') +
+      '</div>';
     h += '</section></div>';
+    return h;
+  }
+};
+
+T.carregando = {
+  step:0, semNav:true, semTrilha:true,
+  render:function(){
+    return '<div class="auth"><section class="card" style="text-align:center">' +
+      '<div class="eyebrow">DPOC Clínico</div>' +
+      '<h1 style="margin-top:6px">Conectando…</h1>' +
+      '<p class="lead">Carregando a sincronização na nuvem.</p>' +
+      '</section></div>';
+  }
+};
+
+/* ---------- CONFIGURAÇÃO DA SINCRONIZAÇÃO ---------- */
+T.config = {
+  step:0, semNav:true, semTrilha:true, lista:true,
+  render:function(){
+    var cfg = configNuvem();
+    var regras =
+      'rules_version = \'2\';\n' +
+      'service cloud.firestore {\n' +
+      '  match /databases/{database}/documents {\n' +
+      '    match /usuarios/{uid}/{documento=**} {\n' +
+      '      allow read, write: if request.auth != null && request.auth.uid == uid;\n' +
+      '    }\n' +
+      '  }\n' +
+      '}';
+    var h = '<section class="card">';
+    h += '<div class="eyebrow">Sincronização entre dispositivos</div>';
+    h += '<h1 class="q-title">Conectar a um projeto Firebase</h1>';
+    h += '<p class="q-help">Com a sincronização ligada, o login passa a ser por e-mail e senha de verdade e os pacientes ficam salvos ' +
+         'na nuvem, acessíveis de qualquer computador ou celular. O projeto é seu — o plano gratuito do Firebase atende com folga um consultório.</p>';
+
+    if(cfg){
+      h += '<div class="note ok" style="margin-top:16px"><b>Sincronização configurada</b> — projeto <b>' + esc(cfg.projectId) + '</b>' +
+           (configEmbutida() ? " (configuração embutida no arquivo do site)." : " (configuração salva neste navegador).") + '</div>';
+    }
+    if(UI.cfgErro) h += '<div class="err on" style="margin-top:14px">' + esc(UI.cfgErro) + '</div>';
+
+    h += '<div class="sect-label" style="margin-top:22px">Passo a passo</div>';
+    h += '<ol class="passos">' +
+      '<li>Acesse <b>console.firebase.google.com</b>, entre com sua conta Google e clique em <b>Criar projeto</b>. Dê um nome (ex.: <code>dpoc-clinico</code>) e pode desativar o Google Analytics.</li>' +
+      '<li>No menu <b>Criação → Authentication</b>, clique em <b>Vamos começar</b>, escolha <b>E-mail/senha</b> e ative a primeira chave.</li>' +
+      '<li>No menu <b>Criação → Firestore Database</b>, clique em <b>Criar banco de dados</b>, escolha a região <code>southamerica-east1</code> e inicie em <b>modo de produção</b>.</li>' +
+      '<li>Ainda no Firestore, abra a aba <b>Regras</b>, apague o que estiver lá, cole as regras abaixo e clique em <b>Publicar</b>. São elas que garantem que cada conta só enxergue os próprios pacientes.</li>' +
+      '<li>Volte à <b>Visão geral do projeto</b>, clique no ícone <b>&lt;/&gt;</b> (Web), registre um app com qualquer apelido e copie o bloco <code>const firebaseConfig = { ... }</code> que aparecer.</li>' +
+      '<li>Cole esse bloco no campo abaixo e clique em <b>Salvar e ativar</b>.</li>' +
+      '</ol>';
+
+    h += '<div style="margin-top:18px">' + blocoTexto("Regras de segurança do Firestore", "Copiar regras", regras) + '</div>';
+
+    h += '<div class="field" style="margin-top:20px"><label>Configuração do projeto (cole aqui)</label>' +
+      '<textarea data-ui="cfgTxt" placeholder=\'const firebaseConfig = {\n  apiKey: "AIza...",\n  authDomain: "seu-projeto.firebaseapp.com",\n  projectId: "seu-projeto",\n  storageBucket: "seu-projeto.firebasestorage.app",\n  messagingSenderId: "000000000000",\n  appId: "1:000000000000:web:abc123"\n};\'>' + esc(UI.cfgTxt || "") + '</textarea>' +
+      '<div class="sub">Pode colar o bloco inteiro, com <code>const firebaseConfig =</code> e tudo. Essas chaves são públicas por natureza no Firebase para web: a proteção vem do login e das regras acima.</div></div>';
+
+    h += '<div class="navbar">' +
+      '<button class="btn btn-secondary" data-go="voltarlogin">Voltar</button>' +
+      '<div class="right">' +
+      (cfg && !configEmbutida() ? '<button class="btn btn-quiet" data-go="desativarnuvem">Desativar sincronização</button>' : '') +
+      '<button class="btn btn-primary" data-go="salvarcfg">Salvar e ativar</button>' +
+      '</div></div>';
+
+    h += '<div class="note" style="margin-top:18px"><b>Para valer em todos os dispositivos sem repetir isso.</b> Abra o arquivo <code>index.html</code>, ' +
+         'localize <code>var FIREBASE_CONFIG = {</code> logo no início do bloco de script e cole ali dentro os mesmos campos. ' +
+         'Publicado assim (por exemplo no GitHub Pages), qualquer aparelho que abrir o endereço já entra no modo nuvem — basta fazer login.</div>';
+    h += '<div class="note warn" style="margin-top:12px">Com a sincronização ligada, abra o site por um endereço <b>https</b> (GitHub Pages, por exemplo). ' +
+         'Abrindo o arquivo direto do disco (<code>file://</code>), o login na nuvem pode ser bloqueado pelo navegador.</div>';
+    h += '</section>';
     return h;
   }
 };
@@ -2342,6 +2654,15 @@ T.pacientes = {
       : "Nenhum paciente cadastrado ainda neste perfil. Comece cadastrando o primeiro atendimento.") + '</p>';
 
     if(UI.msg) h += '<div class="note ok" style="margin-top:16px">' + esc(UI.msg) + '</div>';
+
+    var pend = DB.nuvem ? locaisParaImportar() : null;
+    if(pend && pend.total){
+      h += '<div class="note warn" style="margin-top:16px"><b>' +
+        plural(pend.total, "paciente cadastrado", "pacientes cadastrados") + ' no modo local deste computador' +
+        (pend.perfis.length ? ' (perfil ' + esc(pend.perfis.join(", ")) + ')' : '') + '.</b> ' +
+        'Como a sincronização está ativa, eles ainda não estão na nuvem. ' +
+        '<button type="button" class="linkbtn" data-go="importarlocal">Enviar para a nuvem agora</button></div>';
+    }
 
     h += '<div class="navbar" style="margin-top:18px"><button class="btn btn-primary" data-go="novo">Cadastrar novo paciente</button>' +
          '<div class="right"><button class="btn btn-secondary" data-go="exac">Exacerbação aguda</button></div></div>';
@@ -2388,6 +2709,13 @@ T.pacientes = {
       });
       h += '</div>';
     }
+    h += '<div class="modo-linha"><span class="dot' + (DB.nuvem?"":" local") + '"></span>' +
+      (DB.nuvem
+        ? '<span>Sincronizado na nuvem · conta <b>' + esc(AUTH ? AUTH.user : "") + '</b> · os mesmos pacientes aparecem em qualquer dispositivo</span>' +
+          '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Sincronização</button>'
+        : '<span>Modo local — os pacientes ficam só neste navegador</span>' +
+          '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Ativar sincronização entre dispositivos</button>') +
+      '</div>';
     h += '</section>';
     return h;
   }
@@ -2398,6 +2726,8 @@ T.pacientes = {
    ============================================================ */
 var FLOW = {
   login:  ["login"],
+  config: ["config"],
+  carregando:["carregando"],
   pacientes:["pacientes"],
   inicial:["nome","idade","fumo","mmrc","cat0","cat1","cat2","cat3","cat4","cat5","cat6","cat7",
            "fev1","exac","classif","objetivos","eos","plano","fupPrazo","fupCheck","fupFim"],
@@ -2446,7 +2776,7 @@ function irPacientes(msg){
   UI.aberto = null;
   S.nav.modo = "pacientes"; S.nav.idx = 0;
   save();
-  return recarregarPacientes().then(function(){ render(true); });
+  return comEspera(recarregarPacientes(), "lista").then(function(){ render(true); });
 }
 function recarregarPacientes(){
   if(!AUTH) return Promise.resolve();
@@ -2470,7 +2800,7 @@ function novoPaciente(){
 }
 function abrirPaciente(id){
   if(id !== S.pacienteId && !podeDescartar()) return Promise.resolve();
-  return DB.obterPaciente(id).then(function(pac){
+  return comEspera(DB.obterPaciente(id), "paciente").then(function(pac){
     if(!pac) return irPacientes("Paciente não encontrado.");
     carregarPacienteEmS(pac);
     UI.msg = "";
@@ -2530,23 +2860,87 @@ function encerrarAtendimento(){
   }
   var nome = S.paciente.nome;
   save();
-  return persistirPaciente().then(function(){
+  return comEspera(persistirPaciente(), "salvando").then(function(){
     var f = fresh();
     for(var k in f) S[k] = f[k];
     return irPacientes("Atendimento de " + nome + " encerrado e salvo no histórico.");
   });
 }
 
+/* ---------- sincronização na nuvem ---------- */
+function irConfig(){ UI.cfgErro = ""; if(UI.cfgTxt == null) UI.cfgTxt = ""; S.nav.modo = "config"; S.nav.idx = 0; render(true); }
+function voltarLogin(){ S.nav.modo = AUTH ? "pacientes" : "login"; S.nav.idx = 0; render(true); }
+function salvarConfigNuvem(){
+  var cfg;
+  try{ cfg = lerConfigColada(UI.cfgTxt); }
+  catch(e){ UI.cfgErro = e.message; render(); return; }
+  lsSet(NS + ":firebase", cfg);
+  location.reload();
+}
+function desativarNuvem(){
+  if(!window.confirm("Desativar a sincronização neste navegador? Os pacientes continuam salvos na nuvem e voltam quando você reativar. O app passa a usar perfis locais.")) return;
+  lsDel(NS + ":firebase");
+  location.reload();
+}
+
+/* pacientes gravados em perfis locais deste navegador, ainda fora da nuvem */
+function locaisParaImportar(){
+  var total = 0, perfis = [], itens = [], jaFeitos = lsGet(NS + ":importados:" + (AUTH ? AUTH.id : ""), []);
+  var usuarios = lsGet(NS + ":usuarios", {}), nomePorId = {};
+  for(var u in usuarios) nomePorId[usuarios[u].id] = usuarios[u].nome || usuarios[u].user;
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k = localStorage.key(i);
+      if(!k || k.indexOf(NS + ":") !== 0 || k.slice(-10) !== ":pacientes") continue;
+      if(jaFeitos.indexOf(k) >= 0) continue;
+      var m = lsGet(k, {}), n = 0;
+      for(var id in m){ n++; itens.push(m[id]); }
+      if(!n) continue;
+      total += n;
+      var idLocal = k.slice((NS + ":").length, k.length - 10);
+      perfis.push(nomePorId[idLocal] || idLocal);
+    }
+  }catch(e){}
+  return { total:total, perfis:perfis, itens:itens };
+}
+function importarLocais(){
+  var pend = locaisParaImportar();
+  if(!pend.total) return;
+  if(!window.confirm("Enviar " + plural(pend.total, "paciente", "pacientes") + " do modo local para a sua conta na nuvem? A cópia local não é apagada.")) return;
+  var fila = pend.itens.slice(), enviados = 0;
+  function passo(){
+    if(!fila.length){
+      var chaves = lsGet(NS + ":importados:" + AUTH.id, []);
+      try{
+        for(var i=0;i<localStorage.length;i++){
+          var k = localStorage.key(i);
+          if(k && k.indexOf(NS + ":") === 0 && k.slice(-10) === ":pacientes" && chaves.indexOf(k) < 0) chaves.push(k);
+        }
+      }catch(e){}
+      lsSet(NS + ":importados:" + AUTH.id, chaves);
+      return irPacientes(plural(enviados, "paciente enviado", "pacientes enviados") + " para a nuvem.");
+    }
+    var pac = fila.shift();
+    return comEspera(DB.salvarPaciente(pac), "enviando").then(function(){ enviados++; return passo(); })
+      .catch(function(e){ return irPacientes("Falha ao enviar: " + (e.message || e)); });
+  }
+  passo();
+}
+
 /* ---------- autenticação ---------- */
 function autenticar(){
   var criar = UI.aba === "criar";
   var f = UI.form || {};
-  UI.authErr = "";
+  UI.authErr = ""; UI.msgAuth = "";
+  if(DB.nuvem && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(f.user||"").trim())){
+    UI.authErr = "Informe um e-mail válido."; render(); return;
+  }
   if(criar && String(f.senha||"") !== String(f.senha2||"")){
     UI.authErr = "As senhas não conferem."; render(); return;
   }
   var pr = criar ? DB.criarConta(f.user, f.senha, f.nome) : DB.entrar(f.user, f.senha);
-  pr.then(function(u){
+  ocupado(true, "autenticando"); render();
+  comEspera(pr).then(function(u){
     AUTH = u;
     UI.form = {}; UI.authErr = ""; UI.busca = "";
     return DB.lerRascunho().then(function(r){
@@ -2559,9 +2953,19 @@ function autenticar(){
       return recarregarPacientes().then(function(){ render(true); });
     });
   }).catch(function(e){
+    ocupado(false);
     UI.authErr = e && e.message ? e.message : "Não foi possível entrar.";
     render();
   });
+}
+function esqueciSenha(){
+  var email = (UI.form && UI.form.user) || "";
+  if(!email){ UI.authErr = "Informe o e-mail para receber o link de redefinição."; render(); return; }
+  UI.authErr = ""; UI.msgAuth = "";
+  DB.redefinirSenha(email).then(function(){
+    UI.msgAuth = "Link de redefinição enviado para " + email + ". Confira também a caixa de spam.";
+    render();
+  }).catch(function(e){ UI.authErr = e.message || "Não foi possível enviar o link."; render(); });
 }
 function sair(){
   if(S.paciente.nome && !window.confirm("Sair do perfil? O atendimento em andamento de " + S.paciente.nome + " fica salvo como rascunho neste computador.")) return;
@@ -2622,6 +3026,20 @@ function irEtapa(n){
 /* ---------- renderização ---------- */
 var focoPendente = null;
 
+function ocupado(on, motivo){
+  UI.ocupado = on ? (motivo || true) : false;
+  var el = $("#busy");
+  if(el) el.className = on ? "busy on" : "busy";
+}
+/* executa uma promessa marcando a interface como ocupada */
+function comEspera(pr, motivo){
+  ocupado(true, motivo);
+  return Promise.resolve(pr).then(
+    function(v){ ocupado(false); return v; },
+    function(e){ ocupado(false); throw e; }
+  );
+}
+
 function erro(msg){
   var e = $("#err");
   if(!e) return;
@@ -2651,6 +3069,10 @@ function render(scroll){
       '<button class="tb-btn ghost" type="button" data-go="sair">Sair</button>';
   } else ub.innerHTML = "";
   document.body.classList.toggle("deslogado", !logado);
+  var cf = $("#colofon");
+  if(cf) cf.textContent = DB.nuvem
+    ? "DPOC Clínico · pacientes sincronizados no seu projeto Firebase; o atendimento em andamento fica neste navegador."
+    : "DPOC Clínico · dados mantidos apenas neste navegador (localStorage), sem envio a servidores.";
 
   /* trilha */
   $(".rail-wrap").style.display = (logado && !t.semTrilha && modo !== "pacientes") ? "" : "none";
@@ -2708,6 +3130,8 @@ function render(scroll){
     if(el){ el.focus(); try{ var v = el.value; el.value = ""; el.value = v; }catch(e){} }
     focoPendente = null;
   }
+  var bz = $("#busy");
+  if(bz) bz.className = UI.ocupado ? "busy on" : "busy";
   if(scroll) window.scrollTo({ top:0, behavior:"auto" });
 }
 
@@ -2737,6 +3161,12 @@ document.addEventListener("click", function(ev){
     else if(g === "entrar" || g === "criar") autenticar();
     else if(g === "aba"){ UI.aba = id; UI.authErr = ""; render(); }
     else if(g === "sair") sair();
+    else if(g === "config") irConfig();
+    else if(g === "voltarlogin") voltarLogin();
+    else if(g === "salvarcfg") salvarConfigNuvem();
+    else if(g === "desativarnuvem") desativarNuvem();
+    else if(g === "resetsenha") esqueciSenha();
+    else if(g === "importarlocal") importarLocais();
     return;
   }
   if(el.hasAttribute("data-copy")){ copiarTexto(el); return; }
@@ -2822,7 +3252,39 @@ $("#refsBtn").addEventListener("click", function(){
 
 /* ---------- início ---------- */
 UI.form = {};
-DB.usuarioAtual().then(function(u){
+
+function conectarNuvem(){
+  var cfg = configNuvem();
+  if(!cfg) return Promise.resolve();
+
+  /* aberto direto do disco: o navegador bloqueia o carregamento do SDK
+     (a página ficaria travada), então nem tentamos */
+  if(location.protocol === "file:" && !window.DPOC_FIREBASE_STUB){
+    UI.nuvemErro = "A sincronização precisa que o site seja aberto por um endereço https — por exemplo, publicado no GitHub Pages. " +
+                   "Abrindo o arquivo direto do computador, o navegador bloqueia a conexão com o Firebase.";
+    DB = DriverLocal;
+    return Promise.resolve();
+  }
+
+  var tempo;
+  var carga = Promise.resolve().then(function(){ return carregarFirebase(cfg); });
+  var limite = new Promise(function(_, rej){
+    tempo = setTimeout(function(){ rej(new Error("O servidor demorou demais para responder.")); }, 15000);
+  });
+  return Promise.race([carga, limite]).then(function(fb){
+    clearTimeout(tempo);
+    FB = fb; DB = DriverFirebase;
+  }).catch(function(e){
+    clearTimeout(tempo);
+    UI.nuvemErro = ((e && e.message) ? e.message : "Não foi possível carregar o Firebase.") +
+                   " Verifique a conexão e a configuração do projeto.";
+    DB = DriverLocal;
+  });
+}
+
+if(configNuvem()){ S.nav.modo = "carregando"; render(); }
+
+conectarNuvem().then(function(){ return DB.usuarioAtual(); }).then(function(u){
   if(!u){ AUTH = null; S.nav.modo = "login"; render(); return; }
   AUTH = u;
   return DB.lerRascunho().then(function(r){
@@ -2835,7 +3297,7 @@ DB.usuarioAtual().then(function(u){
   });
 }).catch(function(e){
   AUTH = null; S.nav.modo = "login";
-  UI.authErr = "";
+  UI.nuvemErro = UI.nuvemErro || ((e && e.message) || "");
   render();
 });
 
