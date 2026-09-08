@@ -818,18 +818,24 @@ var DriverLocal = {
    Firestore (também no README), não o segredo da chave.
    ============================================================ */
 var FIREBASE_CONFIG = {
-  /* apiKey: "...", authDomain: "...", projectId: "...",
-     storageBucket: "...", messagingSenderId: "...", appId: "..." */
+  apiKey: "AIzaSyAFANiD-mkJ4mcfIRfp63C52J-gk5LpcZw",
+  authDomain: "dpoc-clinico.firebaseapp.com",
+  projectId: "dpoc-clinico",
+  storageBucket: "dpoc-clinico.firebasestorage.app",
+  messagingSenderId: "97102209662",
+  appId: "1:97102209662:web:20fc7d9286e9f13cf92e2f"
 };
 var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/12.18.0/";
 
-function configNuvem(){
-  if(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) return FIREBASE_CONFIG;
+function configLocalSalva(){
   var salva = lsGet(NS + ":firebase", null);
-  if(salva && salva.apiKey && salva.projectId) return salva;
-  return null;
+  return (salva && salva.apiKey && salva.projectId) ? salva : null;
 }
-function configEmbutida(){ return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey); }
+function configEmbutida(){ return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId); }
+function configNuvem(){
+  /* uma configuração colada neste aparelho tem precedência sobre a do arquivo */
+  return configLocalSalva() || (configEmbutida() ? FIREBASE_CONFIG : null);
+}
 
 /* lê a configuração colada do console do Firebase (objeto JS ou JSON) */
 function lerConfigColada(txt){
@@ -2612,9 +2618,8 @@ T.login = {
 
     h += '<div class="modo-linha"><span class="dot' + (nuvem?"":" local") + '"></span>' +
       (nuvem ? '<span>Sincronização na nuvem ativa (Firebase)</span>' : '<span>Modo local — dados só neste navegador</span>') +
-      (nuvem
-        ? (configEmbutida() ? "" : '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Alterar configuração</button>')
-        : '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Ativar sincronização entre dispositivos</button>') +
+      '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">' +
+      (nuvem ? "Sincronização" : "Ativar sincronização entre dispositivos") + '</button>' +
       '</div>';
 
     h += '<div class="auth-foot">' + (nuvem
@@ -2662,8 +2667,11 @@ T.config = {
          'na nuvem, acessíveis de qualquer computador ou celular. O projeto é seu — o plano gratuito do Firebase atende com folga um consultório.</p>';
 
     if(cfg){
-      h += '<div class="note ok" style="margin-top:16px"><b>Sincronização configurada</b> — projeto <b>' + esc(cfg.projectId) + '</b>' +
-           (configEmbutida() ? " (configuração embutida no arquivo do site)." : " (configuração salva neste navegador).") + '</div>';
+      h += '<div class="note ok" style="margin-top:16px"><b>Sincronização configurada</b> — projeto <b>' + esc(cfg.projectId) + '</b>, ' +
+           (configLocalSalva() ? "com configuração salva neste aparelho" : "com a configuração publicada no site") + '. ' +
+           (configEmbutida() && !configLocalSalva()
+             ? "Não é preciso fazer nada aqui: todo aparelho que abrir o endereço já entra no modo nuvem."
+             : "") + '</div>';
     }
     if(UI.cfgErro) h += '<div class="err on" style="margin-top:14px">' + esc(UI.cfgErro) + '</div>';
 
@@ -2686,7 +2694,10 @@ T.config = {
     h += '<div class="navbar">' +
       '<button class="btn btn-secondary" data-go="voltarlogin">Voltar</button>' +
       '<div class="right">' +
-      (cfg && !configEmbutida() ? '<button class="btn btn-quiet" data-go="desativarnuvem">Desativar sincronização</button>' : '') +
+      (configLocalSalva()
+        ? '<button class="btn btn-quiet" data-go="desativarnuvem">' +
+          (configEmbutida() ? "Voltar à configuração do site" : "Desativar sincronização") + '</button>'
+        : '') +
       '<button class="btn btn-primary" data-go="salvarcfg">Salvar e ativar</button>' +
       '</div></div>';
 
@@ -2941,7 +2952,10 @@ function salvarConfigNuvem(){
   location.reload();
 }
 function desativarNuvem(){
-  if(!window.confirm("Desativar a sincronização neste navegador? Os pacientes continuam salvos na nuvem e voltam quando você reativar. O app passa a usar perfis locais.")) return;
+  var msg = configEmbutida()
+    ? "Descartar a configuração salva neste aparelho e voltar a usar a do site? Os pacientes continuam na nuvem."
+    : "Desativar a sincronização neste navegador? Os pacientes continuam salvos na nuvem e voltam quando você reativar. O app passa a usar perfis locais.";
+  if(!window.confirm(msg)) return;
   lsDel(NS + ":firebase");
   location.reload();
 }

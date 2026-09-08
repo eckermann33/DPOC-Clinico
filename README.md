@@ -81,6 +81,11 @@ computador**. Não há servidor validando nada, os dados **não sincronizam entr
 quem tiver acesso ao navegador alcança o que está armazenado nele. Serve para uso pessoal e
 demonstração — não para dados que exijam sigilo garantido por sistema.
 
+> **Este repositório já está ligado** ao projeto Firebase `dpoc-clinico`: a configuração está
+> embutida em `FIREBASE_CONFIG`, no início do `<script>` do `index.html`. Todo dispositivo que
+> abrir https://eckermann33.github.io/DPOC-Clinico/ entra no modo nuvem — basta fazer login.
+> As instruções abaixo servem para criar outro projeto ou refazer a configuração.
+
 ### Ligar a sincronização entre dispositivos (Firebase)
 
 Dá para fazer tudo pela tela **"Ativar sincronização entre dispositivos"**, no rodapé da tela de
