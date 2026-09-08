@@ -88,8 +88,8 @@ demonstração — não para dados que exijam sigilo garantido por sistema.
 
 ### Ligar a sincronização entre dispositivos (Firebase)
 
-Dá para fazer tudo pela tela **"Ativar sincronização entre dispositivos"**, no rodapé da tela de
-login, que traz o mesmo passo a passo. Resumindo:
+O app não expõe nada disso na interface — quem usa a ferramenta só vê a tela de login. A ligação
+é feita uma vez, aqui no código:
 
 1. Em **console.firebase.google.com**, entre com sua conta Google e clique em **Criar projeto**.
    Dê um nome (ex.: `dpoc-clinico`); pode desativar o Google Analytics.
@@ -114,8 +114,6 @@ login, que traz o mesmo passo a passo. Resumindo:
    bloco `const firebaseConfig = { ... }`.
 6. Cole esse bloco **dentro de `var FIREBASE_CONFIG = { }`**, no início do `<script>` do
    `index.html`, e publique. Assim todo dispositivo que abrir o endereço já entra no modo nuvem.
-   (Alternativa sem editar o arquivo: colar o bloco na tela "Ativar sincronização" dentro do app —
-   mas aí é preciso repetir em cada dispositivo.)
 
 As chaves do `firebaseConfig` são **públicas por definição** no Firebase para web e podem ir para
 o repositório: quem protege os dados são o Authentication e as regras do passo 4, não o segredo
@@ -162,7 +160,6 @@ chaves do `localStorage`:
 | `dpoc_clinico:<idUsuario>:pacientes` | pacientes e histórico de atendimentos daquele perfil local |
 | `dpoc_clinico:<idUsuario>:rascunho` | atendimento em andamento (modo local) |
 | `dpoc_clinico:nuvem:<uid>:rascunho` | atendimento em andamento (modo nuvem) |
-| `dpoc_clinico:firebase` | configuração do projeto, quando colada pela tela do app |
 
 ## Estilo
 

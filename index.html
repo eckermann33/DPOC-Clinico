@@ -575,26 +575,6 @@ ul.orient li.alerta .m{background:var(--amber-soft); border-color:var(--amber-li
 ul.orient li.alerta .m::after{border-color:var(--amber)}
 ul.orient b{color:var(--ink)}
 
-/* ---------- passo a passo da configuração ---------- */
-textarea{
-  width:100%; min-height:160px; padding:12px 13px; background:var(--surface);
-  border:1px solid var(--rule-strong); border-radius:var(--r);
-  font-family:var(--mono); font-size:12.5px; line-height:1.65; resize:vertical;
-  transition:border-color .12s, box-shadow .12s;
-}
-textarea:hover{border-color:var(--ink-4)}
-textarea:focus{outline:none; border-color:var(--petrol-700); box-shadow:0 0 0 3px rgba(27,66,87,.13)}
-ol.passos{margin:0; padding:0; list-style:none; counter-reset:passo}
-ol.passos li{counter-increment:passo; position:relative; padding:0 0 16px 36px; font-size:14.5px; color:var(--ink-2); line-height:1.6}
-ol.passos li::before{
-  content:counter(passo); position:absolute; left:0; top:1px; width:22px; height:22px;
-  border:1px solid var(--petrol-900); color:var(--petrol-900);
-  font-family:var(--serif); font-size:12.5px; font-weight:600; display:grid; place-items:center;
-}
-ol.passos li:last-child{padding-bottom:0}
-ol.passos b{color:var(--ink)}
-ol.passos code,.note code,.sub code{font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--rule); padding:1px 5px}
-
 @media (max-width:600px){
   #userbox{flex:none}
 }
@@ -827,32 +807,8 @@ var FIREBASE_CONFIG = {
 };
 var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/12.18.0/";
 
-function configLocalSalva(){
-  var salva = lsGet(NS + ":firebase", null);
-  return (salva && salva.apiKey && salva.projectId) ? salva : null;
-}
-function configEmbutida(){ return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId); }
 function configNuvem(){
-  /* uma configuração colada neste aparelho tem precedência sobre a do arquivo */
-  return configLocalSalva() || (configEmbutida() ? FIREBASE_CONFIG : null);
-}
-
-/* lê a configuração colada do console do Firebase (objeto JS ou JSON) */
-function lerConfigColada(txt){
-  var t = String(txt || "");
-  var i = t.indexOf("{"), j = t.lastIndexOf("}");
-  if(i < 0 || j < i) throw new Error("Não encontrei a configuração. Cole o trecho que começa com { e termina com }.");
-  t = t.slice(i, j + 1);
-  t = t.replace(/\/\/[^\n\r]*/g, "");                       /* comentários */
-  t = t.replace(/'([^']*)'/g, function(m, g){ return JSON.stringify(g); });
-  t = t.replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":'); /* chaves sem aspas */
-  t = t.replace(/,\s*([}\]])/g, "$1");                       /* vírgula sobrando */
-  var cfg;
-  try{ cfg = JSON.parse(t); }
-  catch(e){ throw new Error("A configuração colada não pôde ser lida. Copie o bloco inteiro do console do Firebase, das chaves { até }."); }
-  if(!cfg.apiKey || !cfg.projectId || !cfg.authDomain)
-    throw new Error("Faltam campos na configuração (apiKey, authDomain e projectId são obrigatórios).");
-  return cfg;
+  return (FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) ? FIREBASE_CONFIG : null;
 }
 
 var FB = null;   /* módulos e instâncias do Firebase, após carregar */
@@ -2616,16 +2572,10 @@ T.login = {
       h += '<div style="margin-top:12px;text-align:center"><button type="button" class="linkbtn" data-go="resetsenha">Esqueci minha senha</button></div>';
     }
 
-    h += '<div class="modo-linha"><span class="dot' + (nuvem?"":" local") + '"></span>' +
-      (nuvem ? '<span>Sincronização na nuvem ativa (Firebase)</span>' : '<span>Modo local — dados só neste navegador</span>') +
-      '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">' +
-      (nuvem ? "Sincronização" : "Ativar sincronização entre dispositivos") + '</button>' +
-      '</div>';
-
     h += '<div class="auth-foot">' + (nuvem
-      ? '<b>Onde ficam os dados.</b> Em um projeto Firebase que é seu: a conta é protegida por e-mail e senha, e as regras do Firestore ' +
-        'permitem que cada conta leia e escreva apenas os próprios pacientes. Ao guardar dados de pacientes reais, você é o responsável ' +
-        'pelo tratamento dessas informações — considere registrar iniciais em vez do nome completo.'
+      ? '<b>Onde ficam os dados.</b> Os pacientes ficam guardados na sua conta, protegida por e-mail e senha, e cada conta enxerga ' +
+        'apenas os próprios pacientes. Ao registrar dados de pacientes reais, você é o responsável pelo tratamento dessas ' +
+        'informações — considere usar as iniciais em vez do nome completo.'
       : '<b>Como funciona este login.</b> Este é um <b>perfil local</b>: usuário e senha ficam guardados apenas neste navegador, ' +
         'e servem para separar os pacientes de profissionais que dividem o mesmo computador. Não há servidor validando a senha, os dados ' +
         'não sincronizam entre dispositivos e quem tiver acesso a este navegador pode alcançar os dados armazenados nele.') +
@@ -2647,70 +2597,6 @@ T.carregando = {
 };
 
 /* ---------- CONFIGURAÇÃO DA SINCRONIZAÇÃO ---------- */
-T.config = {
-  step:0, semNav:true, semTrilha:true, lista:true,
-  render:function(){
-    var cfg = configNuvem();
-    var regras =
-      'rules_version = \'2\';\n' +
-      'service cloud.firestore {\n' +
-      '  match /databases/{database}/documents {\n' +
-      '    match /usuarios/{uid}/{documento=**} {\n' +
-      '      allow read, write: if request.auth != null && request.auth.uid == uid;\n' +
-      '    }\n' +
-      '  }\n' +
-      '}';
-    var h = '<section class="card">';
-    h += '<div class="eyebrow">Sincronização entre dispositivos</div>';
-    h += '<h1 class="q-title">Conectar a um projeto Firebase</h1>';
-    h += '<p class="q-help">Com a sincronização ligada, o login passa a ser por e-mail e senha de verdade e os pacientes ficam salvos ' +
-         'na nuvem, acessíveis de qualquer computador ou celular. O projeto é seu — o plano gratuito do Firebase atende com folga um consultório.</p>';
-
-    if(cfg){
-      h += '<div class="note ok" style="margin-top:16px"><b>Sincronização configurada</b> — projeto <b>' + esc(cfg.projectId) + '</b>, ' +
-           (configLocalSalva() ? "com configuração salva neste aparelho" : "com a configuração publicada no site") + '. ' +
-           (configEmbutida() && !configLocalSalva()
-             ? "Não é preciso fazer nada aqui: todo aparelho que abrir o endereço já entra no modo nuvem."
-             : "") + '</div>';
-    }
-    if(UI.cfgErro) h += '<div class="err on" style="margin-top:14px">' + esc(UI.cfgErro) + '</div>';
-
-    h += '<div class="sect-label" style="margin-top:22px">Passo a passo</div>';
-    h += '<ol class="passos">' +
-      '<li>Acesse <b>console.firebase.google.com</b>, entre com sua conta Google e clique em <b>Criar projeto</b>. Dê um nome (ex.: <code>dpoc-clinico</code>) e pode desativar o Google Analytics.</li>' +
-      '<li>No menu <b>Criação → Authentication</b>, clique em <b>Vamos começar</b>, escolha <b>E-mail/senha</b> e ative a primeira chave.</li>' +
-      '<li>No menu <b>Criação → Firestore Database</b>, clique em <b>Criar banco de dados</b>, escolha a região <code>southamerica-east1</code> e inicie em <b>modo de produção</b>.</li>' +
-      '<li>Ainda no Firestore, abra a aba <b>Regras</b>, apague o que estiver lá, cole as regras abaixo e clique em <b>Publicar</b>. São elas que garantem que cada conta só enxergue os próprios pacientes.</li>' +
-      '<li>Volte à <b>Visão geral do projeto</b>, clique no ícone <b>&lt;/&gt;</b> (Web), registre um app com qualquer apelido e copie o bloco <code>const firebaseConfig = { ... }</code> que aparecer.</li>' +
-      '<li>Cole esse bloco no campo abaixo e clique em <b>Salvar e ativar</b>.</li>' +
-      '</ol>';
-
-    h += '<div style="margin-top:18px">' + blocoTexto("Regras de segurança do Firestore", "Copiar regras", regras) + '</div>';
-
-    h += '<div class="field" style="margin-top:20px"><label>Configuração do projeto (cole aqui)</label>' +
-      '<textarea data-ui="cfgTxt" placeholder=\'const firebaseConfig = {\n  apiKey: "AIza...",\n  authDomain: "seu-projeto.firebaseapp.com",\n  projectId: "seu-projeto",\n  storageBucket: "seu-projeto.firebasestorage.app",\n  messagingSenderId: "000000000000",\n  appId: "1:000000000000:web:abc123"\n};\'>' + esc(UI.cfgTxt || "") + '</textarea>' +
-      '<div class="sub">Pode colar o bloco inteiro, com <code>const firebaseConfig =</code> e tudo. Essas chaves são públicas por natureza no Firebase para web: a proteção vem do login e das regras acima.</div></div>';
-
-    h += '<div class="navbar">' +
-      '<button class="btn btn-secondary" data-go="voltarlogin">Voltar</button>' +
-      '<div class="right">' +
-      (configLocalSalva()
-        ? '<button class="btn btn-quiet" data-go="desativarnuvem">' +
-          (configEmbutida() ? "Voltar à configuração do site" : "Desativar sincronização") + '</button>'
-        : '') +
-      '<button class="btn btn-primary" data-go="salvarcfg">Salvar e ativar</button>' +
-      '</div></div>';
-
-    h += '<div class="note" style="margin-top:18px"><b>Para valer em todos os dispositivos sem repetir isso.</b> Abra o arquivo <code>index.html</code>, ' +
-         'localize <code>var FIREBASE_CONFIG = {</code> logo no início do bloco de script e cole ali dentro os mesmos campos. ' +
-         'Publicado assim (por exemplo no GitHub Pages), qualquer aparelho que abrir o endereço já entra no modo nuvem — basta fazer login.</div>';
-    h += '<div class="note warn" style="margin-top:12px">Com a sincronização ligada, abra o site por um endereço <b>https</b> (GitHub Pages, por exemplo). ' +
-         'Abrindo o arquivo direto do disco (<code>file://</code>), o login na nuvem pode ser bloqueado pelo navegador.</div>';
-    h += '</section>';
-    return h;
-  }
-};
-
 /* ---------- BANCO DE PACIENTES ---------- */
 T.pacientes = {
   step:0, semNav:true, lista:true,
@@ -2785,10 +2671,8 @@ T.pacientes = {
     }
     h += '<div class="modo-linha"><span class="dot' + (DB.nuvem?"":" local") + '"></span>' +
       (DB.nuvem
-        ? '<span>Sincronizado na nuvem · conta <b>' + esc(AUTH ? AUTH.user : "") + '</b> · os mesmos pacientes aparecem em qualquer dispositivo</span>' +
-          '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Sincronização</button>'
-        : '<span>Modo local — os pacientes ficam só neste navegador</span>' +
-          '<button type="button" class="linkbtn" style="margin-left:auto" data-go="config">Ativar sincronização entre dispositivos</button>') +
+        ? '<span>Sincronizado na nuvem · conta <b>' + esc(AUTH ? AUTH.user : "") + '</b> · os mesmos pacientes aparecem em qualquer dispositivo</span>'
+        : '<span>Modo local — os pacientes ficam só neste navegador</span>') +
       '</div>';
     h += '</section>';
     return h;
@@ -2800,7 +2684,6 @@ T.pacientes = {
    ============================================================ */
 var FLOW = {
   login:  ["login"],
-  config: ["config"],
   carregando:["carregando"],
   pacientes:["pacientes"],
   inicial:["nome","idade","fumo","mmrc","cat0","cat1","cat2","cat3","cat4","cat5","cat6","cat7",
@@ -2939,25 +2822,6 @@ function encerrarAtendimento(){
     for(var k in f) S[k] = f[k];
     return irPacientes("Atendimento de " + nome + " encerrado e salvo no histórico.");
   });
-}
-
-/* ---------- sincronização na nuvem ---------- */
-function irConfig(){ UI.cfgErro = ""; if(UI.cfgTxt == null) UI.cfgTxt = ""; S.nav.modo = "config"; S.nav.idx = 0; render(true); }
-function voltarLogin(){ S.nav.modo = AUTH ? "pacientes" : "login"; S.nav.idx = 0; render(true); }
-function salvarConfigNuvem(){
-  var cfg;
-  try{ cfg = lerConfigColada(UI.cfgTxt); }
-  catch(e){ UI.cfgErro = e.message; render(); return; }
-  lsSet(NS + ":firebase", cfg);
-  location.reload();
-}
-function desativarNuvem(){
-  var msg = configEmbutida()
-    ? "Descartar a configuração salva neste aparelho e voltar a usar a do site? Os pacientes continuam na nuvem."
-    : "Desativar a sincronização neste navegador? Os pacientes continuam salvos na nuvem e voltam quando você reativar. O app passa a usar perfis locais.";
-  if(!window.confirm(msg)) return;
-  lsDel(NS + ":firebase");
-  location.reload();
 }
 
 /* pacientes gravados em perfis locais deste navegador, ainda fora da nuvem */
@@ -3238,10 +3102,6 @@ document.addEventListener("click", function(ev){
     else if(g === "entrar" || g === "criar") autenticar();
     else if(g === "aba"){ UI.aba = id; UI.authErr = ""; render(); }
     else if(g === "sair") sair();
-    else if(g === "config") irConfig();
-    else if(g === "voltarlogin") voltarLogin();
-    else if(g === "salvarcfg") salvarConfigNuvem();
-    else if(g === "desativarnuvem") desativarNuvem();
     else if(g === "resetsenha") esqueciSenha();
     else if(g === "importarlocal") importarLocais();
     return;
